@@ -79,14 +79,7 @@
                 </a>
             </li>
 
-            <li class="nav-item mb-1">
-                <a href="{{ route('message.landlord', ['landlord_id' => session('landlord_id')]) }}"
-                    class="nav-link-modern {{ request()->routeIs('message.landlord') ? 'active-item' : '' }}">
-                    <i class="bi bi-chat-dots-fill"></i>
-                    <span>Messages</span>
-                </a>
-            </li>
-
+          
             <li class="nav-item mb-1">
                 <a href="{{ route('notifications.landlord', ['landlord_id' => session('landlord_id')]) }}"
                     class="nav-link-modern {{ request()->routeIs('notifications.landlord') ? 'active-item' : '' }}">
@@ -95,13 +88,6 @@
                 </a>
             </li>
 
-            <li class="nav-item mt-5 pt-3">
-                <a href="{{ route('payment.landlord', ['landlord_id' => session('landlord_id')]) }}"
-                    class="verification-badge">
-                    <i class="bi bi-shield-check-fill me-2"></i>
-                    <span>Account Verification</span>
-                </a>
-            </li>
         </ul>
     </div>
 </div>

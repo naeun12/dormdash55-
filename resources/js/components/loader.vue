@@ -6,14 +6,16 @@
                 <div class="pulse-ring ring-2"></div>
 
                 <div class="logo-wrapper">
-                    <img :src="logoImage" alt="DormDash" class="brand-logo">
+                    <img :src="logoImage" alt="DormDash" class="brand-logo" />
                 </div>
 
                 <div class="progress-container">
                     <div class="progress-bar-ind"></div>
                 </div>
 
-                <span class="loading-text">DormDash is preparing your space...</span>
+                <span class="loading-text"
+                    >DormDash is preparing your space...</span
+                >
             </div>
         </div>
     </transition>
@@ -21,15 +23,14 @@
 
 <script>
 export default {
-    name: 'Loader',
+    name: "Loader",
     data() {
         return {
-            loading: true, // Set to true for preview
-            logoImage: '/images/Logo/Logo.png'        };
-    }
+            loading: false, // Set to true for preview
+            logoImage: "/images/Logo/Logo.png",
+        };
+    },
 };
 </script>
 
-<style scoped src="../../../public/css/partials/loader.css">
-
-</style>
+<style scoped src="../../../public/css/partials/loader.css"></style>

@@ -22,24 +22,24 @@
                         <i class="bi bi-house-door me-1"></i> Home
                     </a>
                 </li>
-                <li class="nav-item">
+                {{-- <li class="nav-item">
                     <a class="nav-link px-3 {{ request()->routeIs('dorm.map') ? 'active' : '' }}" 
                        href="{{ route('dorm.map', ['tenant_id' => session('tenant_id')]) }}">
                         <i class="bi bi-geo-alt me-1"></i> Map
                     </a>
-                </li>
+                </li> --}}
                 <li class="nav-item">
                     <a class="nav-link px-3 {{ request()->routeIs('dormitories') ? 'active' : '' }}" 
                        href="{{ route('dormitories', ['tenant_id' => session('tenant_id')]) }}">
                         <i class="bi bi-building me-1"></i> Dorms
                     </a>
                 </li>
-                <li class="nav-item">
+                {{-- <li class="nav-item">
                     <a class="nav-link px-3 {{ request()->routeIs('tenant.message') ? 'active' : '' }}" 
                        href="{{ route('tenant.message', ['tenant_id' => session('tenant_id')]) }}">
                         <i class="bi bi-chat-left-text me-1"></i> Messages
                     </a>
-                </li>
+                </li> --}}
             </ul>
         </div>
 
@@ -132,10 +132,7 @@
                class="list-group-item list-group-item-action py-3 border-0 d-flex align-items-center {{ request()->routeIs('dormitories') ? 'active-sidebar' : '' }}">
                 <i class="bi bi-building fs-5 me-3"></i> Dormitories
             </a>
-            <a href="{{ route('tenant.message', ['tenant_id' => session('tenant_id')]) }}" 
-               class="list-group-item list-group-item-action py-3 border-0 d-flex align-items-center {{ request()->routeIs('tenant.message') ? 'active-sidebar' : '' }}">
-                <i class="bi bi-chat-left-text fs-5 me-3"></i> Messages
-            </a>
+           
         </div>
     </div>
 </div>
