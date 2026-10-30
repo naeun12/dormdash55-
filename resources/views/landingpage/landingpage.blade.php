@@ -25,7 +25,7 @@
                 </h1>
 
                 <p class="lead mb-4 text-white-50 mx-auto" style="max-width: 600px; font-size: 1.1rem;">
-                    The ultimate management bridge for modern living in <strong>Lapu-Lapu</strong> and <strong>Mandaue City</strong>.
+                    The ultimate management bridge for modern living in <strong>Surigao City</strong>
                 </p>
 
                 <div class="divider-brand mx-auto mb-4"></div>
@@ -144,7 +144,7 @@
                     <div class="card-img-overlay d-flex flex-column justify-content-end p-4 bg-gradient-brand">
                         <div class="text-white">
                             <h3 class="fw-bold mb-1">Sunshine Dormitory</h3>
-                            <p class="mb-3 opacity-75"><i class="bi bi-geo-alt-fill me-1"></i> Mandaue City, Cebu</p>
+                            <p class="mb-3 opacity-75"><i class="bi bi-geo-alt-fill me-1"></i> San Juan, Surigao City</p>
                             <div class="d-flex justify-content-between align-items-center">
                                 <span class="h5 mb-0 fw-bold">₱4,500 <small class="fw-light">/mo</small></span>
                                 <button type="button" class="btn btn-brand-orange rounded-pill px-4 shadow" data-bs-toggle="modal" data-bs-target="#exampleModal">
@@ -179,7 +179,7 @@
                         <img src="{{ asset('images/landingpage/dorm4.jpg') }}" class="w-100 h-100 zoom-img" alt="Lapu Cozy" style="object-fit: cover;">
                         <div class="card-img-overlay d-flex flex-column justify-content-end bg-gradient-brand p-3">
                             <h6 class="fw-bold text-white mb-0">Lapu Cozy</h6>
-                            <p class="x-small text-white opacity-75 mb-0">⭐ 4.7 • Lapu-Lapu</p>
+                            <p class="x-small text-white opacity-75 mb-0">⭐ 4.7 • Libuac</p>
                         </div>
                     </div>
                 </div>
@@ -189,7 +189,7 @@
                         <img src="{{ asset('images/landingpage/dorm3.jpg') }}" class="w-100 h-100 zoom-img" alt="Cityside" style="object-fit: cover;">
                         <div class="card-img-overlay d-flex flex-column justify-content-end bg-gradient-brand p-3">
                             <h6 class="fw-bold text-white mb-0">Cityside Stay</h6>
-                            <p class="x-small text-white opacity-75 mb-0">⭐ 4.5 • Mandaue</p>
+                            <p class="x-small text-white opacity-75 mb-0">⭐ 4.5 • Alang-alang</p>
                         </div>
                     </div>
                 </div>
@@ -520,7 +520,7 @@
                     Dorm<span style="color: #FC7D07;">Dash</span>
                 </h4>
                 <p class="small opacity-75" style="max-width: 250px; line-height: 1.6;">
-                    Connecting students with safe, affordable, and convenient living spaces in Mandaue and Lapu-Lapu City.
+                    Connecting students with safe, affordable, and convenient living spaces in Surigao City. Your trusted platform for dormitory accommodations.
                 </p>
                 <div class="d-flex justify-content-center justify-content-md-start gap-3 mt-4">
                     <a href="https://www.facebook.com/profile.php?id=61580194851438" class="social-icon" target="_blank">

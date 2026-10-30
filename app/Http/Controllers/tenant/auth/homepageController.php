@@ -44,22 +44,10 @@ class homepageController extends Controller
              'unread_count' => $unreadCount,]);
 
     }
-    public function dormLapuLapu()
+public function dormSurigao()
 {
     return response()->json(
-        dormModel::where('address', 'LIKE', '%Lapu-Lapu%')
-            ->select('dormID', 'dormName', 'address', 'latitude', 'longitude')
-            ->with(['images' => function ($query) {
-                $query->select('fkdormID', 'mainImage');
-            }])
-            ->get()
-    );
-}
-
-public function dormMandaeu()
-{
-    return response()->json(
-        dormModel::where('address', 'LIKE', '%Mandaue%')
+        dormModel::where('address', 'LIKE', '%Surigao%')
             ->select('dormID', 'dormName', 'address', 'latitude', 'longitude')
             ->with(['images' => function ($query) {
                 $query->select('fkdormID', 'mainImage');

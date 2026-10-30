@@ -2,100 +2,222 @@
     <NotificationList ref="toastRef" />
     <!-- Floating Button -->
 
-    <!-- <div class="offcanvas offcanvas-start rounded-end-4 shadow-lg border-0" data-bs-backdrop="static" tabindex="-1"
-        id="staticBackdrop" aria-labelledby="staticBackdropLabel" style="width: 400px;">
-
-        <div class="offcanvas-header text-white shadow-sm py-3 px-4" style="background-color: #003C87;">
-            <h5 class="offcanvas-title fw-bold d-flex align-items-center" id="staticBackdropLabel">
+    <div
+        class="offcanvas offcanvas-start rounded-end-4 shadow-lg border-0"
+        data-bs-backdrop="static"
+        tabindex="-1"
+        id="staticBackdrop"
+        aria-labelledby="staticBackdropLabel"
+        style="width: 400px"
+    >
+        <div
+            class="offcanvas-header text-white shadow-sm py-3 px-4"
+            style="background-color: #003c87"
+        >
+            <h5
+                class="offcanvas-title fw-bold d-flex align-items-center"
+                id="staticBackdropLabel"
+            >
                 <div class="p-2 bg-white bg-opacity-10 rounded-3 me-3">
                     <i class="bi bi-star-fill text-warning fs-5"></i>
                 </div>
                 Recommended for You
             </h5>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"
-                aria-label="Close"></button>
+            <button
+                type="button"
+                class="btn-close btn-close-white"
+                data-bs-dismiss="offcanvas"
+                aria-label="Close"
+            ></button>
         </div>
 
         <div class="offcanvas-body p-4 bg-light">
-            <div v-if="loading" class="d-flex justify-content-center align-items-center" style="height: 300px;">
-                <div class="spinner-grow text-primary" role="status" style="width: 3rem; height: 3rem;">
+            <div
+                v-if="loading"
+                class="d-flex justify-content-center align-items-center"
+                style="height: 300px"
+            >
+                <div
+                    class="spinner-grow text-primary"
+                    role="status"
+                    style="width: 3rem; height: 3rem"
+                >
                     <span class="visually-hidden">Loading...</span>
                 </div>
             </div>
 
-            <div v-else class="d-flex flex-column gap-4 overflow-auto pe-2" style="max-height: calc(100vh - 120px);">
-
-                <div v-for="(dorm, index) in genderPersonalized" :key="index"
-                    class="card dorm-card shadow-sm border-0 rounded-4 overflow-hidden transition-all hover-translate-y bg-white">
-
+            <div
+                v-else
+                class="d-flex flex-column gap-4 overflow-auto pe-2"
+                style="max-height: calc(100vh - 120px)"
+            >
+                <div
+                    v-for="(dorm, index) in genderPersonalized"
+                    :key="index"
+                    class="card dorm-card shadow-sm border-0 rounded-4 overflow-hidden transition-all hover-translate-y bg-white"
+                >
                     <div class="position-relative">
-                        <img :src="dorm?.images?.mainImage || dorm?.mainImage || 'https://via.placeholder.com/400x250'"
-                            class="card-img-top object-fit-cover shadow-inner" style="height: 220px;">
+                        <img
+                            :src="
+                                dorm?.images?.mainImage ||
+                                dorm?.mainImage ||
+                                'https://via.placeholder.com/400x250'
+                            "
+                            class="card-img-top object-fit-cover shadow-inner"
+                            style="height: 220px"
+                        />
 
-                        <div class="position-absolute bottom-0 start-0 m-3 px-3 py-2 rounded-3 shadow-sm text-white fw-bold fs-5"
-                            style="background-color: #FC7D07; backdrop-filter: blur(2px);">
-                            ₱{{dorm?.rooms?.length ? Math.min(...dorm.rooms.map(r => r.price)).toLocaleString('en-US',
-                                {minimumFractionDigits: 2}) : 'N/A' }}
+                        <div
+                            class="position-absolute bottom-0 start-0 m-3 px-3 py-2 rounded-3 shadow-sm text-white fw-bold fs-5"
+                            style="
+                                background-color: #fc7d07;
+                                backdrop-filter: blur(2px);
+                            "
+                        >
+                            ₱{{
+                                dorm?.rooms?.length
+                                    ? Math.min(
+                                          ...dorm.rooms.map((r) => r.price),
+                                      ).toLocaleString("en-US", {
+                                          minimumFractionDigits: 2,
+                                      })
+                                    : "N/A"
+                            }}
                         </div>
                     </div>
 
                     <div class="card-body p-4 d-flex flex-column gap-3">
                         <div>
-                            <h5 class="fw-bold text-dark text-truncate mb-1">{{ dorm.dormName }}</h5>
-                            <p class="text-muted small mb-0 d-flex align-items-center text-truncate">
-                                <i class="bi bi-geo-alt-fill text-danger me-2"></i>{{ dorm.address || 'Location unavailable' }}
+                            <h5 class="fw-bold text-dark text-truncate mb-1">
+                                {{ dorm.dormName }}
+                            </h5>
+                            <p
+                                class="text-muted small mb-0 d-flex align-items-center text-truncate"
+                            >
+                                <i
+                                    class="bi bi-geo-alt-fill text-danger me-2"
+                                ></i
+                                >{{ dorm.address || "Location unavailable" }}
                             </p>
                         </div>
 
                         <div class="row g-2 p-2 rounded-3 bg-light border">
-                            <div class="col-12 d-flex align-items-center justify-content-between mb-1">
-                                <small class="text-muted small-caps fw-bold">Occupancy</small>
-                                <span class="badge rounded-pill px-2 py-1" :class="{
-                                    'bg-primary bg-opacity-10 text-primary': dorm.occupancyType.includes('Male'),
-                                    'bg-danger bg-opacity-10 text-danger': dorm.occupancyType.includes('Female'),
-                                    'bg-warning bg-opacity-10 text-dark': dorm.occupancyType.includes('Mixed')
-                                }">
-                                    <i class="bi bi-people-fill me-1"></i>{{ dorm.occupancyType || 'Unspecified' }}
+                            <div
+                                class="col-12 d-flex align-items-center justify-content-between mb-1"
+                            >
+                                <small class="text-muted small-caps fw-bold"
+                                    >Occupancy</small
+                                >
+                                <span
+                                    class="badge rounded-pill px-2 py-1"
+                                    :class="{
+                                        'bg-primary bg-opacity-10 text-primary':
+                                            dorm.occupancyType.includes('Male'),
+                                        'bg-danger bg-opacity-10 text-danger':
+                                            dorm.occupancyType.includes(
+                                                'Female',
+                                            ),
+                                        'bg-warning bg-opacity-10 text-dark':
+                                            dorm.occupancyType.includes(
+                                                'Mixed',
+                                            ),
+                                    }"
+                                >
+                                    <i class="bi bi-people-fill me-1"></i
+                                    >{{ dorm.occupancyType || "Unspecified" }}
                                 </span>
                             </div>
 
                             <div class="col-12 border-top pt-2">
-                                <small class="text-muted small-caps fw-bold d-block mb-2">Highlights</small>
+                                <small
+                                    class="text-muted small-caps fw-bold d-block mb-2"
+                                    >Highlights</small
+                                >
                                 <div class="d-flex flex-wrap gap-1">
-                                    <template v-if="dorm.amenities && dorm.amenities.length > 0">
-                                        <span v-for="amenity in dorm.amenities.slice(0, 4)" :key="amenity.id"
+                                    <template
+                                        v-if="
+                                            dorm.amenities &&
+                                            dorm.amenities.length > 0
+                                        "
+                                    >
+                                        <span
+                                            v-for="amenity in dorm.amenities.slice(
+                                                0,
+                                                4,
+                                            )"
+                                            :key="amenity.id"
                                             class="badge rounded-pill px-2 py-1 text-truncate transition-all"
-                                            :class="tenant.preferred_amenities.includes(amenity.id) ? 'bg-success text-white' : 'bg-white text-secondary border'">
+                                            :class="
+                                                tenant.preferred_amenities.includes(
+                                                    amenity.id,
+                                                )
+                                                    ? 'bg-success text-white'
+                                                    : 'bg-white text-secondary border'
+                                            "
+                                        >
                                             {{ amenity.aminityName }}
                                         </span>
                                     </template>
                                     <template
-                                        v-if="dorm.rooms && dorm.rooms.some(r => r.features && r.features.length > 0)">
+                                        v-if="
+                                            dorm.rooms &&
+                                            dorm.rooms.some(
+                                                (r) =>
+                                                    r.features &&
+                                                    r.features.length > 0,
+                                            )
+                                        "
+                                    >
                                         <template v-for="room in dorm.rooms">
-                                            <span v-for="feature in room.features.slice(0, 2)" :key="feature.id"
+                                            <span
+                                                v-for="feature in room.features.slice(
+                                                    0,
+                                                    2,
+                                                )"
+                                                :key="feature.id"
                                                 class="badge rounded-pill px-2 py-1 text-truncate transition-all"
-                                                :class="tenant.preferred_features && tenant.preferred_features.includes(feature.id) ? 'bg-success text-white' : 'bg-white text-secondary border'">
+                                                :class="
+                                                    tenant.preferred_features &&
+                                                    tenant.preferred_features.includes(
+                                                        feature.id,
+                                                    )
+                                                        ? 'bg-success text-white'
+                                                        : 'bg-white text-secondary border'
+                                                "
+                                            >
                                                 {{ feature.featureName }}
                                             </span>
                                         </template>
                                     </template>
                                     <span
-                                        v-if="(!dorm.amenities || dorm.amenities.length === 0) && (!dorm.rooms || !dorm.rooms.some(r => r.features))"
-                                        class="text-muted small">None listed</span>
+                                        v-if="
+                                            (!dorm.amenities ||
+                                                dorm.amenities.length === 0) &&
+                                            (!dorm.rooms ||
+                                                !dorm.rooms.some(
+                                                    (r) => r.features,
+                                                ))
+                                        "
+                                        class="text-muted small"
+                                        >None listed</span
+                                    >
                                 </div>
                             </div>
                         </div>
 
-                        <button class="btn btn-lg w-100 rounded-pill fw-bold text-white shadow-sm mt-2 transition-all"
-                            style="background-color: #003C87;" @click="viewDorms(dorm.dormID)">
-                            <i class="bi bi-info-circle me-2"></i>View Property Details
+                        <button
+                            class="btn btn-lg w-100 rounded-pill fw-bold text-white shadow-sm mt-2 transition-all"
+                            style="background-color: #003c87"
+                            @click="viewDorms(dorm.dormID)"
+                        >
+                            <i class="bi bi-info-circle me-2"></i>View Property
+                            Details
                         </button>
                     </div>
                 </div>
-
             </div>
         </div>
-    </div> -->
+    </div>
 
     <!-- PERSONALIZE MODAL -->
     <div
@@ -569,19 +691,7 @@
                                 </div>
                             </div>
 
-                            <div class="d-flex gap-2">
-                                <button
-                                    class="btn btn-dash-blue rounded-pill px-4 shadow-sm"
-                                >
-                                    <i class="bi bi-list-ul me-1"></i> View All
-                                    Listings
-                                </button>
-                                <button
-                                    class="btn btn-outline-dash-orange rounded-pill px-3"
-                                >
-                                    <i class="bi bi-filter"></i>
-                                </button>
-                            </div>
+                            <div class="d-flex gap-2"></div>
                         </div>
 
                         <div class="card-body p-0 position-relative">
@@ -749,7 +859,7 @@
     <!-- Fixed Bottom-Right Button -->
     <!-- Floating Button -->
     <div class="fixed-actions-container">
-        <!-- <button
+        <button
             type="button"
             class="btn-dash-float mb-3 shadow-lg animate__animated animate__fadeInRight"
             data-bs-toggle="offcanvas"
@@ -776,7 +886,6 @@
                 </div>
             </button>
         </div>
-    </div> -->
     </div>
 </template>
 <script>
@@ -1076,7 +1185,7 @@ export default {
         // Load Google Maps script dynamically
         const script = document.createElement("script");
         script.src =
-            "https://maps.googleapis.com/maps/api/js?key=AIzaSyCbVSKsv35IGFWYg9C96B5swf6UaVj9IGQ&callback=initMap";
+            "https://maps.googleapis.com/maps/api/js?key=AIzaSyA60IR46dCwVugKRbrCAUgUgpjriupq1oE&callback=initMap";
         script.async = true;
         script.defer = true;
         document.head.appendChild(script);

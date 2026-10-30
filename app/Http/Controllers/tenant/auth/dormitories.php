@@ -53,14 +53,10 @@ class dormitories extends Controller
     {
         $dorms = dormModel::with(['amenities','images'])->paginate(10);
         $count = $dorms->total();
-         $lapulapuCount = dormModel::where('address', 'like', '%Lapu-Lapu%')->count();
-        $mandaueCount = dormModel::where('address', 'like', '%Mandaue%')->count();
         return response()->Json([
             'status' => 'success',
             'dorms' => $dorms,
-            'total_dorms' => $count,
-            'lapulapu_dorms' => $lapulapuCount,
-            'mandaue_dorms' => $mandaueCount
+            'total_dorms' => $count
         ]);
     }
     public function selectedCityDorms(Request $request)
@@ -68,11 +64,10 @@ class dormitories extends Controller
     $city = $request->input('city'); // from Vue buttons
 
 
-    $dorms = dormModel::with(['amenities','images'])
-        ->when($city && $city !== 'All', function($query) use ($city) {
-            $query->where(function($q) use ($city) {
-                $q->where('address', 'like', '%' . $city . '%')
-                  ->orWhere('address', 'like', '%' . $this->mapCityAlias($city) . '%');
+        $dorms = dormModel::with(['amenities', 'images'])
+            ->when($city && $city !== 'All', function ($query) use ($city) {
+                $query->where(function ($q) use ($city) {
+                    $q->where('address', 'like', '%' . $city . '%');
                 // You can add more columns if needed
             });
         })
@@ -88,17 +83,7 @@ class dormitories extends Controller
 
 
 // Optional helper to handle common city aliases
-private function mapCityAlias($city)
-{
-    $aliases = [
-        'Lapu-Lapu' => 'Lapu-Lapu City',
-        'Mandaue' => 'Mandaue City',
-        'Cebu' => 'Cebu City'
-    ];
 
-
-    return $aliases[$city] ?? $city;
-}
 public function fetchAmenities()
 {
     $amenities = DB::table('amenities')->get();
@@ -211,18 +196,7 @@ public function getAvailability(Request $request)
     ]);
 }
 
-
-
-
-
-
-
-
-    protected $locationSynonyms = [
-        "lapulapu" => ["lapu-lapu", "lapu lapu", "lapulapu", "lapulapu city"],
-        "airport" => ["airport", "opon", "mcac", "mactan"]
-    ];
-
+    
 
     protected function normalize($text)
     {
@@ -230,18 +204,7 @@ public function getAvailability(Request $request)
     }
 
 
-    protected function matchesSynonym($keywordNormalized, $addressNormalized)
-    {
-        foreach ($this->locationSynonyms as $synonyms) {
-            foreach ($synonyms as $syn) {
-                $normalizedSyn = $this->normalize($syn);
-                if (strpos($addressNormalized, $normalizedSyn) !== false && strpos($keywordNormalized, $normalizedSyn) !== false) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
+  
 
 
    public function searchLocations(Request $request)
@@ -272,8 +235,8 @@ public function getAvailability(Request $request)
         // Apply Collection filtering to handle normalization & synonyms
         $filteredCollection = $dormsPaginated->getCollection()->filter(function ($dorm) use ($keywordNormalized) {
             $addressNormalized = preg_replace('/[^a-z0-9]+/', '', strtolower($dorm->address));
-            return strpos($addressNormalized, $keywordNormalized) !== false ||
-                   $this->matchesSynonym($keywordNormalized, $addressNormalized);
+            return strpos($addressNormalized, $keywordNormalized) !== false 
+                  ;
         });
 
 
@@ -466,7 +429,7 @@ if ($response->failed()) {
 $data = $response->json();
 
 
-        \Log::info('Raw Flask response: ' . $response->body());
+       
 
 
         $data = $response->json() ?? [];
@@ -576,19 +539,13 @@ $data = $response->json();
                 ];
             }, $data['result']);
         }
-
-
         return response()->json([
             'message' => $aiMessage,
             'dorms' => $data['result'] ?? [],
             'recommendations' => $recommendations,
         ]);
 
-
     } catch (\Exception $e) {
-        \Log::error('AI Dorm Recommendation Error: ' . $e->getMessage());
-
-
         return response()->json([
             'message' => 'Naa’y error sa pagkuha og AI recommendations.',
             'dorms' => [],

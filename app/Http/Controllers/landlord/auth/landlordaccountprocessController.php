@@ -79,36 +79,74 @@ class landlordaccountprocessController extends Controller
         }
     }
 
-    public function IdentityVerifaction(Request $request)
-    {
-        try {
-            $validated = $request->validate([
-                'governmentIdPic' => 'required|image|mimes:jpg,png,jpeg|max:2048',
-            ], [
-                'governmentIdPic.required' => 'Please upload a government ID picture.',
-                'governmentIdPic.image' => 'The file must be an image.',
-                'governmentIdPic.mimes' => 'Only JPG, PNG, and JPEG images are allowed.',
-                'governmentIdPic.max' => 'The image may not be greater than 2MB.',
-            ]);
+   
+public function IdentityVerifaction(Request $request)
+{
+    try {
+        $validated = $request->validate([
+            'governmentIdPic' => 'required|image|mimes:jpg,png,jpeg,webp|max:2048',
+        ], [
+            'governmentIdPic.required' => 'Please upload a government ID picture.',
+            'governmentIdPic.image' => 'The file must be an image.',
+            'governmentIdPic.mimes' => 'Only JPG, PNG, JPEG, and WebP images are allowed.',
+            'governmentIdPic.max' => 'The image may not be greater than 2MB.',
+        ]);
 
-            return response()->json([
-                'status' => 'success',
-            ], 200);
+        $image = $request->file('governmentIdPic');
 
-        } catch (\Illuminate\Validation\ValidationException $e) {
+        // Python FastAPI endpoint
+        $pythonApiUrl = env(
+            'ID_AI_API_URL',
+            'http://127.0.0.1:8001/analyze'
+        );
+
+        // Send the uploaded image to Python
+        $response = Http::timeout(90)
+            ->attach(
+                'file',
+                file_get_contents($image->getRealPath()),
+                $image->getClientOriginalName()
+            )
+            ->post($pythonApiUrl);
+        if (!$response->successful()) {
             return response()->json([
                 'status' => 'error',
-                'errors' => $e->errors(),
-            ], 422);
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'An unexpected error occurred. Please try again.',
-                'error' => $e->getMessage(),
-            ], 500);
+                'message' => 'Unable to analyze the ID image. Please try again.',
+            ], 502);
         }
+        $aiResult = $response->json();
+        if (!is_array($aiResult) || !($aiResult['success'] ?? false)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'The AI service returned an invalid response.',
+            ], 502);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'ID image analysis completed.',
+            'analysis' => $aiResult['analysis'] ?? null,
+            'verification_status' => 'pending',
+        ], 200);
+
+    }  catch (\Illuminate\Http\Client\ConnectionException $e) {
+       
+
+        return response()->json([
+            'status' => 'error',
+            'message' => 'The AI service is unavailable. Please try again later.',
+        ], 503);
+
+    } catch (\Exception $e) {
+        
+
+        return response()->json([
+            'status' => 'error',
+            'message' => 'An unexpected error occurred. Please try again.',
+        ], 500);
     }
+}
+
 
     public function businessPermitValidation(Request $request)
     {
@@ -259,7 +297,7 @@ class landlordaccountprocessController extends Controller
     [   
         'email.exists' => 'No OTP record found for this email.',
     ]);
-    try{
+
          $otpRecord = otpModel::where('email',$validated['email']);
     if(!$otpRecord)
     {
@@ -280,14 +318,8 @@ class landlordaccountprocessController extends Controller
             'timer' => $newOtpExpiresAt
         ], 200);
 
-    }
-    catch(Exception $ex)
-{   
-        return response()->json([
-            'message' => 'An unexpected error occurred. Please try again.',
-        ], 500);
+    
    
-}
 
 }
 public function loginLandlord(Request $request)
@@ -300,7 +332,7 @@ public function loginLandlord(Request $request)
     
         $user = landlordModel::where('email', $request->email)->first();
     
-        if (!$user || !\Hash::check($request->password, $user->password)) {
+        if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json(['message' => 'Invalid credentials.'], 401);
         }
           if ($user->is_deactivated == 1) {
