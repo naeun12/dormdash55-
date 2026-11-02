@@ -82,25 +82,26 @@ class landlordaccountprocessController extends Controller
    
 public function IdentityVerifaction(Request $request)
 {
-    try {
-        $validated = $request->validate([
-            'governmentIdPic' => 'required|image|mimes:jpg,png,jpeg,webp|max:2048',
-        ], [
-            'governmentIdPic.required' => 'Please upload a government ID picture.',
-            'governmentIdPic.image' => 'The file must be an image.',
-            'governmentIdPic.mimes' => 'Only JPG, PNG, JPEG, and WebP images are allowed.',
-            'governmentIdPic.max' => 'The image may not be greater than 2MB.',
-        ]);
+    // Validate before entering try-catch.
+    $validated = $request->validate([
+        'governmentIdPic' => 'required|image|mimes:jpg,png,jpeg,webp|max:2048',
+    ], [
+        'governmentIdPic.required' => 'Please upload a government ID picture.',
+        'governmentIdPic.image' => 'The file must be an image.',
+        'governmentIdPic.mimes' => 'Only JPG, PNG, JPEG, and WebP images are allowed.',
+        'governmentIdPic.max' => 'The image may not be greater than 2MB.',
+    ]);
 
+    try {
         $image = $request->file('governmentIdPic');
 
         // Python FastAPI endpoint
         $pythonApiUrl = env(
             'ID_AI_API_URL',
-            'http://127.0.0.1:8001/analyze'
+            'http://127.0.0.1:8002/analyze'
         );
 
-        // Send the uploaded image to Python
+        // Send image to Python
         $response = Http::timeout(90)
             ->attach(
                 'file',
@@ -108,29 +109,59 @@ public function IdentityVerifaction(Request $request)
                 $image->getClientOriginalName()
             )
             ->post($pythonApiUrl);
+
+        // Python API error
         if (!$response->successful()) {
+       
+
             return response()->json([
                 'status' => 'error',
                 'message' => 'Unable to analyze the ID image. Please try again.',
             ], 502);
         }
+
         $aiResult = $response->json();
-        if (!is_array($aiResult) || !($aiResult['success'] ?? false)) {
+
+        // Check if response is valid JSON
+        if (!is_array($aiResult)) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'The AI service returned an invalid response.',
             ], 502);
         }
 
+        // REJECT: Not a Philippine government ID
+        if (($aiResult['verification_status'] ?? null) === 'invalid_id') {
+            return response()->json([
+                'status' => 'error',
+                'message' => $aiResult['message']
+                    ?? 'The uploaded image is not a valid Philippine government ID.',
+                'analysis' => $aiResult['analysis'] ?? null,
+                'verification_status' => 'invalid_id',
+                'recommended_action' => 'reject',
+            ], 422);
+        }
+
+        // Check AI success
+        if (($aiResult['success'] ?? false) !== true) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $aiResult['message'] ?? 'AI analysis failed.',
+            ], 502);
+        }
+
+        // ACCEPT: Philippine ID detected, manual review required
         return response()->json([
             'status' => 'success',
-            'message' => 'ID image analysis completed.',
+            'message' => $aiResult['message']
+                ?? 'ID image analysis completed.',
             'analysis' => $aiResult['analysis'] ?? null,
             'verification_status' => 'pending',
+            'recommended_action' => 'manual_review',
         ], 200);
 
-    }  catch (\Illuminate\Http\Client\ConnectionException $e) {
-       
+    } catch (\Illuminate\Http\Client\ConnectionException $e) {
+
 
         return response()->json([
             'status' => 'error',
@@ -138,7 +169,7 @@ public function IdentityVerifaction(Request $request)
         ], 503);
 
     } catch (\Exception $e) {
-        
+
 
         return response()->json([
             'status' => 'error',

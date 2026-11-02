@@ -99,7 +99,7 @@ Route::middleware([LandlordAuth::class])->group(function () {
     Route::match(['get', 'post'], '/all-tenants-index/{landlord_id}', [alltenantsController::class, 'alltenantIndex'])->name('all.tenants.index');
     Route::match(['get', 'post'], '/message/landlord/{landlord_id}', [messagelandlordController::class, 'landlordmessageIndex'])->name('message.landlord');
     Route::match(['get', 'post'], '/ReviewandFeedback', [ReviewandFeedbackController::class, 'ReviewandFeedback'])->name('ReviewandFeedback');
-    Route::match(['get', 'post'], '/NotificationPage', [NotificationController::class, 'NotificationPage'])->name('NotificationPage');
+    // Route::match(['get', 'post'], '/NotificationPage', [NotificationController::class, 'NotificationPage'])->name('NotificationPage');
 
     //functions for getting data dashboard 
     Route::get('/get/landlord/{landlord_id}', [dashboardController::class, 'getLandlord']);

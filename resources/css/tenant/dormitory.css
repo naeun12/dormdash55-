@@ -1,4 +1,226 @@
-/* DormDash Brand Colors */
+/* Custom Palette Variables */
+:root {
+    --primary-blue: #003C87;
+    --primary-blue-hover: #002B66;
+    --accent-orange: #FC7D07;
+    --accent-orange-hover: #E56D00;
+
+    --soft-blue: #E8F1FF;
+    --text-dark: #2A2D34;
+    --text-muted: #6C757D;
+
+    --glass-bg: rgba(255, 255, 255, 0.85);
+    --glass-border: rgba(0, 60, 135, 0.12);
+}
+
+/* Base Utility Classes */
+.text-dash-blue {
+    color: var(--primary-blue) !important;
+}
+
+.text-dash-orange {
+    color: var(--accent-orange) !important;
+}
+
+.bg-blue-soft {
+    background-color: var(--soft-blue) !important;
+}
+
+/* Floating Recommendation Button */
+.floating-recommendation {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    border: none;
+    border-radius: 50%;
+    background-color: #003C87;
+    color: #ffffff;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10002;
+    box-shadow: 0 8px 25px rgba(0, 60, 135, 0.30);
+    transition: all 0.3s ease;
+}
+
+.floating-recommendation:hover {
+    background: #FC7D07;
+    transform: translateY(-4px) scale(1.05);
+    box-shadow: 0 12px 30px rgba(252, 125, 7, 0.35);
+}
+
+.floating-recommendation.active {
+    background: #FC7D07;
+    transform: rotate(90deg);
+}
+
+/* Floating AI Panel */
+.floating-ai-panel {
+    position: fixed;
+    bottom: 105px;
+    right: 30px;
+    width: 440px;
+    max-width: calc(100vw - 40px);
+    max-height: 78vh;
+    background: #ffffff;
+    border-radius: 24px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(0, 60, 135, 0.12);
+    z-index: 10001;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: slideInUp 0.3s ease;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.96);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* AI Panel Header */
+.ai-panel-header {
+    background: linear-gradient(135deg,
+        rgba(0, 60, 135, 0.85) 0%,
+        rgba(252, 125, 7, 0.85) 100%);
+    color: #ffffff;
+    padding: 18px 24px;
+}
+
+/* Chat Scroll Area */
+.ai-scroll-content {
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #CBD5E1 transparent;
+}
+
+.ai-scroll-content::-webkit-scrollbar {
+    width: 5px;
+}
+
+.ai-scroll-content::-webkit-scrollbar-thumb {
+    background-color: #CBD5E1;
+    border-radius: 10px;
+}
+
+/* Dorm Cards */
+.dorm-main-card {
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    border: 1px solid rgba(0, 60, 135, 0.08) !important;
+}
+
+.dorm-main-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 14px 28px rgba(0, 60, 135, 0.12) !important;
+}
+
+.card-img-wrap {
+    overflow: hidden;
+}
+
+.card-img-wrap img {
+    transition: transform 0.4s ease;
+}
+
+.dorm-main-card:hover .card-img-wrap img {
+    transform: scale(1.04);
+}
+
+/* Glass Rating Badge */
+.glass-rating {
+    background: rgba(0, 60, 135, 0.75);
+    color: #ffffff;
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+/* Filter Buttons */
+.btn-filter-pill {
+    border: 1.5px solid #D5E2F3;
+    background-color: #ffffff;
+    color: #002B66;
+    border-radius: 50rem;
+    padding: 8px 20px;
+    font-weight: 600;
+    font-size: 0.88rem;
+    transition: all 0.2s ease;
+}
+
+.btn-filter-pill:hover,
+.btn-filter-pill.active {
+    background-color: #003C87;
+    color: #ffffff;
+    border-color: #003C87;
+    box-shadow: 0 4px 12px rgba(0, 60, 135, 0.2);
+}
+
+/* Custom Form Controls */
+.custom-floating .form-select,
+.custom-floating .form-control {
+    border-radius: 14px;
+    background-color: #F8FAFC;
+    border: 1px solid #D5E2F3;
+    color: #002B66;
+}
+
+.custom-floating .form-select:focus,
+.custom-floating .form-control:focus {
+    border-color: #003C87;
+    box-shadow: 0 0 0 0.2rem rgba(0, 60, 135, 0.12);
+}
+
+/* Horizontal Scroll Container */
+.scroll-content {
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    padding-bottom: 10px;
+}
+
+.scroll-content::-webkit-scrollbar {
+    display: none;
+}
+
+.watched-dorm-card {
+    min-width: 260px;
+    max-width: 260px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.watched-dorm-card:hover {
+    transform: translateY(-3px);
+}
+
+/* Mobile Responsive */
+@media (max-width: 576px) {
+    .floating-recommendation {
+        width: 52px;
+        height: 52px;
+        bottom: 20px;
+        right: 20px;
+    }
+
+    .floating-ai-panel {
+        right: 15px;
+        left: 15px;
+        bottom: 82px;
+        width: auto;
+        max-width: none;
+        max-height: 75vh;
+    }
+}
 .text-dash-blue {
     color: #003C87 !important;
 }
@@ -278,4 +500,73 @@
 .x-small {
     font-size: 0.65rem;
     letter-spacing: 0.5px;
+}
+/* Glassmorphism Container Wrapper */
+.filter-wrapper {
+    background: rgba(255, 255, 255, 0.90);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(0, 60, 135, 0.12);
+    transition: box-shadow 0.3s ease;
+}
+
+.filter-wrapper:hover {
+    box-shadow: 0 10px 30px rgba(0, 60, 135, 0.08) !important;
+}
+
+/* Custom Floating Labels & Controls */
+.custom-floating {
+    position: relative;
+}
+
+.custom-floating .custom-select {
+    background-color: #ffffff;
+    border: 1.5px solid rgba(0, 60, 135, 0.15);
+    border-radius: 12px;
+    color: #2A2D34;
+    font-weight: 500;
+    font-size: 0.95rem;
+    padding-top: 1.625rem;
+    padding-bottom: 0.625rem;
+    height: 3.6rem;
+    transition: all 0.25s ease-in-out;
+    cursor: pointer;
+}
+
+/* Focus and Hover State Styles */
+.custom-floating .custom-select:hover {
+    border-color: #003C87;
+    background-color: #E8F1FF;
+}
+
+.custom-floating .custom-select:focus {
+    border-color: #003C87;
+    box-shadow: 0 0 0 4px rgba(0, 60, 135, 0.15) !important;
+}
+
+/* Label Styling & Icon Coloring */
+.custom-floating>label {
+    color: #6C757D;
+    font-weight: 500;
+    font-size: 0.85rem;
+    padding: 0.75rem 0.85rem;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s ease-in-out;
+}
+
+.custom-floating>label i {
+    color: #003C87;
+    font-size: 0.9rem;
+    transition: color 0.2s ease-in-out;
+}
+
+.custom-floating .custom-select:focus~label,
+.custom-floating .custom-select:not(:placeholder-shown)~label {
+    color: #003C87;
+    font-weight: 600;
+}
+
+.custom-floating .custom-select:focus~label i {
+    color: #FC7D07;
 }

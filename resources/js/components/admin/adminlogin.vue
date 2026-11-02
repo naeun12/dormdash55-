@@ -2,148 +2,245 @@
     <Loader ref="loader" />
     <Toastcomponents ref="toast" />
 
-
-    <div class="container py-5">
-        <div class="card border-0 shadow-lg py-4 px-3 mx-auto"
-            style="max-width: 700px; border-radius: 25px; background: #ffffff;">
-            <div class="card-body">
-                <h1 class="text-center mb-2 mt-3 fw-bold text-primary">👋 Hello Admin</h1>
-                <p class="text-center mb-4 text-muted fs-6">
-                    Hi Admin! Continue managing the platform, including tenants and landlord accounts. </p>
+    <div
+        class="container d-flex align-items-center justify-content-center min-vh-100 py-5"
+    >
+        <div
+            class="card border-0 shadow-lg p-4 p-sm-5 mx-auto w-100"
+            style="max-width: 550px; border-radius: 24px; background: #ffffff"
+        >
+            <!-- Header Section -->
+            <div class="card-body text-center p-0 mb-4">
+                <div
+                    class="icon-box mb-3 mx-auto d-flex align-items-center justify-content-center shadow-sm"
+                    style="
+                        width: 70px;
+                        height: 70px;
+                        border-radius: 20px;
+                        background: rgba(0, 60, 135, 0.08);
+                    "
+                >
+                    <span class="fs-2">👋</span>
+                </div>
+                <h1 class="fw-bold mb-2" style="color: var(--primary-blue)">
+                    Hello Admin
+                </h1>
+                <p class="text-muted fs-6 px-lg-4 mb-0">
+                    Continue managing the platform, including tenants and
+                    landlord accounts.
+                </p>
             </div>
 
-
             <!-- Login Form -->
-            <form @submit.prevent="adminLogin">
-                <div class="row px-3 px-sm-4">
-
-
+            <form @submit.prevent="adminLogin" novalidate>
+                <div class="row g-3">
                     <!-- Username -->
-                    <div class="mt-3">
-                        <label for="username" class="form-label fw-semibold">Username</label>
-                        <input type="text" id="username" name="username" v-model="username" class="form-control p-3"
-                            placeholder="Enter your username" style="border: 2px solid #4edce2; border-radius: 12px;">
-                        <span v-if="errors.username" class="text-danger small">
+                    <div class="col-12">
+                        <label
+                            for="username"
+                            class="form-label fw-semibold text-secondary small text-uppercase tracking-wider"
+                            >Username</label
+                        >
+                        <input
+                            type="text"
+                            id="username"
+                            name="username"
+                            v-model="username"
+                            class="form-control form-control-lg px-3 py-2 fs-6 custom-input"
+                            placeholder="Enter your username"
+                        />
+                        <span
+                            v-if="errors.username"
+                            class="text-danger small mt-1 d-block"
+                        >
                             {{ errors.username[0] }}
                         </span>
                     </div>
 
-
                     <!-- Password -->
-                    <div class="mt-3">
-                        <label for="password" class="form-label fw-semibold">Password</label>
+                    <div class="col-12">
+                        <label
+                            for="password"
+                            class="form-label fw-semibold text-secondary small text-uppercase tracking-wider"
+                            >Password</label
+                        >
                         <div class="input-group">
-                            <input type="password" id="password" name="password" v-model="password"
-                                class="form-control p-3" placeholder="Enter your password"
-                                style="border: 2px solid #4edce2; border-radius: 12px;">
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                v-model="password"
+                                class="form-control form-control-lg px-3 py-2 fs-6 custom-input"
+                                placeholder="Enter your password"
+                            />
                         </div>
-                        <span v-if="errors.password" class="text-danger small">
+                        <span
+                            v-if="errors.password"
+                            class="text-danger small mt-1 d-block"
+                        >
                             {{ errors.password[0] }}
                         </span>
                     </div>
 
-
-                    <!-- Show Password -->
-                    <div class="mt-3 d-flex align-items-center">
-                        <input type="checkbox" id="show-password" class="form-check-input me-2"
-                            style="border: 2px solid #4edce2;" @click="toggleShowPassword">
-                        <label for="show-password" class="form-label m-0">Show Password</label>
+                    <!-- Show Password & Forgot Password Layout -->
+                    <div
+                        class="col-12 d-flex align-items-center justify-content-between mt-2"
+                    >
+                        <div class="form-check d-flex align-items-center m-0">
+                            <input
+                                type="checkbox"
+                                id="show-password"
+                                class="form-check-input custom-checkbox me-2"
+                                @click="toggleShowPassword"
+                            />
+                            <label
+                                for="show-password"
+                                class="form-check-label text-muted small cursor-pointer"
+                            >
+                                Show Password
+                            </label>
+                        </div>
                     </div>
 
-
                     <!-- Sign In Button -->
-                    <div class="d-flex justify-content-center">
-                        <div class="w-100 w-sm-75 mt-4">
-                            <button type="submit" class="btn btn-primary rounded-pill w-100 py-2 shadow-sm"
-                                style="background: linear-gradient(135deg, #4edce2, #1fb6ff); border: none; font-weight: 600; transition: all 0.3s;">
-                                Sign In
-                            </button>
-                        </div>
+                    <div class="col-12 mt-4">
+                        <button
+                            type="submit"
+                            class="btn btn-lg w-100 py-3 shadow-sm text-white fw-semibold custom-btn-orange"
+                        >
+                            Sign In
+                        </button>
                     </div>
                 </div>
             </form>
-
-
         </div>
     </div>
 </template>
+
 <script>
-import axios from 'axios';
-import Toastcomponents from '@/components/Toastcomponents.vue';
-import Loader from '@/components/loader.vue';
+import axios from "axios";
+import Toastcomponents from "@/components/Toastcomponents.vue";
+import Loader from "@/components/loader.vue";
 
 export default {
     components: {
         Toastcomponents,
-        Loader
-
+        Loader,
     },
     data() {
         return {
             username: "",
             password: "",
             errors: {},
-            linkSignup: '',
+            linkSignup: "",
         };
-
     },
     methods: {
         async adminLogin() {
             this.$refs.loader.loading = true;
 
             const formData = new FormData();
-            formData.append('username', this.username);
-            formData.append('password', this.password);
+            formData.append("username", this.username);
+            formData.append("password", this.password);
 
             try {
-                const response = await axios.post('/login-admin', formData, {
+                const response = await axios.post("/login-admin", formData, {
                     headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    }
+                        "X-CSRF-TOKEN": document
+                            .querySelector('meta[name="csrf-token"]')
+                            .getAttribute("content"),
+                    },
                 });
                 if (response.data.status === "success") {
                     const userId = response.data.admin.id;
                     window.location.href = `/admin/dashboard/${userId}`;
-                    this.$refs.loader.loading = false;;
+                    this.$refs.loader.loading = false;
                     this.errors = {};
                     this.fill();
-
                     return true;
                 }
-            }
-            catch (error) {
+            } catch (error) {
                 this.$refs.loader.loading = false;
                 if (error.response) {
                     if (error.response.status === 422) {
                         this.errors = error.response.data.message;
-
                     }
                     if (error.response.status === 401) {
-                        console.log("Validation failed:", error.response.data.message);
                         this.errors = error.response.data.message;
-                        this.$refs.toast.showToast(error.response.data.message, 'danger');
+                        this.$refs.toast.showToast(
+                            error.response.data.message,
+                            "danger",
+                        );
                         this.errors = {};
                     }
                 }
             }
-
         },
 
         fill() {
             this.username = "";
             this.password = "";
-            this.messageToaste = "";
         },
         toggleShowPassword() {
-            const passwordField = document.getElementById('password');
-            const type = passwordField.type === 'password' ? 'text' : 'password';
-            passwordField.type = type;
+            const passwordField = document.getElementById("password");
+            passwordField.type =
+                passwordField.type === "password" ? "text" : "password";
         },
-     
-
-
     },
+};
+</script>
 
+<style scoped>
+/* Color Variables */
+:root {
+    --primary-blue: #003c87;
+    --accent-orange: #fc7d07;
+    --text-muted: #94a3b8;
+    --border-soft: #e2e8f0;
 }
 
-</script>
+/* Custom Input Styling */
+.custom-input {
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    transition: all 0.2s ease-in-out;
+    background-color: #f8fafc;
+}
+
+.custom-input:focus {
+    border-color: #003c87;
+    box-shadow: 0 0 0 4px rgba(0, 60, 135, 0.1);
+    background-color: #ffffff;
+}
+
+/* Accent Orange Button */
+.custom-btn-orange {
+    background: linear-gradient(135deg, #fc7d07, #e06c00);
+    border: none;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.custom-btn-orange:hover {
+    background: linear-gradient(135deg, #e06c00, #c55d00);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(252, 125, 7, 0.3) !important;
+}
+
+/* Checkbox Accent */
+.custom-checkbox {
+    border: 2px solid #e2e8f0;
+    width: 1.15em;
+    height: 1.15em;
+    cursor: pointer;
+}
+
+.custom-checkbox:checked {
+    background-color: #003c87;
+    border-color: #003c87;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+</style>

@@ -263,3 +263,108 @@
 .shadow-lg {
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
 }
+.floating-bot {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    width: 60px;
+    height: 60px;
+    border: none;
+    border-radius: 50%;
+    background-color: #003C87;
+    color: #ffffff;
+    font-size: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    z-index: 9999;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.floating-bot:hover {
+    background-color: #FC7D07;
+    transform: scale(1.08);
+}
+/* Frosted Glass Backdrop Overlay */
+.custom-modal-backdrop {
+    background-color: rgba(15, 23, 42, 0.65) !important;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+/* Header Gradient & Branding */
+.custom-modal-header {
+    background: linear-gradient(135deg, #003C87 0%, #002D66 100%);
+    border-bottom: none;
+}
+
+.custom-modal-header .text-accent {
+    color: #FC7D07;
+}
+
+.custom-modal-header .icon-wrapper {
+    background: rgba(255, 255, 255, 0.12);
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Textarea Customization */
+.custom-textarea {
+    border: 1.5px solid rgba(0, 60, 135, 0.15);
+    border-radius: 14px;
+    font-size: 0.95rem;
+    transition: all 0.25s ease-in-out;
+    background-color: #ffffff;
+}
+
+.custom-textarea:focus {
+    border-color: #003C87;
+    box-shadow: 0 0 0 4px rgba(0, 60, 135, 0.12) !important;
+}
+
+/* AI Response Card Style with Accent Border */
+.ai-response-card {
+    background: #ffffff;
+    border: 1px solid rgba(0, 60, 135, 0.1);
+    border-left: 4px solid #FC7D07;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.ai-badge {
+    width: 32px;
+    height: 32px;
+    background: #003C87;
+}
+
+/* Primary Action Button Hover & Elevation */
+.custom-btn-primary {
+    background-color: #FC7D07;
+    border: none;
+    color: #ffffff;
+    transition: all 0.2s ease-in-out;
+}
+
+.custom-btn-primary:hover {
+    background-color: #E66F00;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 15px rgba(252, 125, 7, 0.25) !important;
+}
+
+/* Smooth Fade In Animation for Responses */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

@@ -18,7 +18,7 @@ public function createAdmin(Request $request)
    
 
     $admin = AdminModel::create([
-        'name' => 'Lance Monsanto',
+        'name' => 'Cassandra',
         'username' => 'admin',
         'password' => Hash::make('admin123'),
     ]);
@@ -45,7 +45,7 @@ public function createAdmin(Request $request)
     
         $user = adminModel::where('username', $request->username)->first();
     
-        if (!$user || !\Hash::check($request->password, $user->password)) {
+        if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json(['message' => 'Invalid credentials.'], 401);
         }
     Auth::guard('admin')->login($user);

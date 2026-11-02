@@ -741,12 +741,13 @@ export default {
             }
         },
         //Identify Verifaction
+
         async IdentityVerification() {
             this.$refs.loader.loading = true;
 
             const formData = new FormData();
-
             formData.append("governmentIdPic", this.governmentIdFile);
+
             try {
                 const response = await axios.post(
                     "/IdentityVerifaction",
@@ -759,41 +760,83 @@ export default {
                         },
                     },
                 );
-                if (response.data.status === "success") {
+
+                const data = response.data;
+
+                if (
+                    data.status === "success" &&
+                    data.verification_status === "pending"
+                ) {
                     this.currentStep = 2;
-                    this.$refs.loader.loading = false;
 
                     return true;
                 }
-            } catch (error) {
-                if (error.response) {
-                    this.$refs.loader.loading = false;
 
-                    if (error.response.status === 422) {
-                        const errorMessages = Object.values(
-                            error.response.data.errors,
-                        )
+                this.$refs.toast.showToast(
+                    data.message || "Unable to verify ID image.",
+                    "danger",
+                );
+
+                return false;
+            } catch (error) {
+                const response = error.response;
+                const data = response?.data;
+
+                if (response) {
+                    // Stop loading
+                    if (response.status === 422) {
+                        // AI rejection response
+                        if (data?.verification_status === "invalid_id") {
+                            this.$refs.toast.showToast(
+                                data.message ||
+                                    "Please upload a valid Philippine government ID.",
+                                "danger",
+                            );
+
+                            console.log("AI ID rejection:", data);
+                            return false;
+                        }
+
+                        // Laravel validation errors
+                        const errors = data?.errors || {};
+
+                        const errorMessages = Object.values(errors)
                             .flat()
                             .join("\n");
-                        console.log("Validation errors:", errorMessages);
-                        this.$refs.toast.showToast(errorMessages, "danger");
-                    } else {
-                        console.error(
-                            "Registration error:",
-                            error.response.data,
+
+                        this.$refs.toast.showToast(
+                            errorMessages ||
+                                data?.message ||
+                                "Invalid uploaded image.",
+                            "danger",
                         );
+
+                        console.log("Validation errors:", errors);
+                        return false;
                     }
+
+                    console.error("Registration error:", data);
+
+                    this.$refs.toast.showToast(
+                        data?.message || "An unexpected error occurred.",
+                        "danger",
+                    );
                 } else {
                     console.error("Network error:", error.message);
-                }
-            }
-            return true;
-        },
 
-        //Business Documentation
+                    this.$refs.toast.showToast(
+                        "Unable to connect to the server. Please try again.",
+                        "danger",
+                    );
+                }
+
+                return false;
+            } finally {
+                this.$refs.loader.loading = false;
+            }
+        },
         async BusinessDocumentation() {
             this.$refs.loader.loading = true;
-
             const formData = new FormData();
             formData.append("businessPermitPic", this.businessPermitFile);
             formData.append("email", this.email);
