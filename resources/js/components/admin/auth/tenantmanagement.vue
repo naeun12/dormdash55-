@@ -1,159 +1,219 @@
 <template>
     <Loader ref="loader" />
 
-    <div
-        class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-3 p-3 bg-light shadow-sm rounded"
-    >
-        <h1 class="fw-bold text-dark mb-3 mb-md-0" style="font-size: 1.8rem">
-            Tenant Management Dashboard
-        </h1>
-        <button
-            class="btn btn-primary d-inline-flex align-items-center px-4 py-2 btn-hover-effect"
-            @click="downloadReport"
+    <div class="container-fluid px-0">
+        <!-- Header Section -->
+        <div
+            class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 p-4 bg-white shadow-sm rounded-4 border-0"
         >
-            <i class="bi bi-file-earmark-arrow-down me-2"></i>
-            Download Tenant Report
-        </button>
-    </div>
-
-    <div
-        class="input-group w-100 shadow-sm rounded-pill overflow-hidden mb-3"
-        style="border: 2px solid #4edce2"
-    >
-        <span class="input-group-text bg-white border-0">
-            <i class="bi bi-search text-primary"></i>
-        </span>
-        <input
-            type="text"
-            class="form-control border-0 shadow-none"
-            placeholder="Search Tenants name"
-            aria-label="Search Tenant "
-            v-model="searchTerm"
-            style="border: 2px solid #4edce2"
-        />
-    </div>
-
-    <div
-        class="table-responsive shadow-sm rounded border border-1"
-        v-if="tenants && tenants.length"
-    >
-        <table class="table table-striped table-hover align-middle mb-0">
-            <thead class="table-info">
-                <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">First Name</th>
-                    <th scope="col">Last Name</th>
-                    <th scope="col">Email</th>
-                    <th scope="col">Status</th>
-                    <th scope="col">Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="(tenant, index) in tenants" :key="tenant.tenantID">
-                    <th scope="row">{{ tenant.tenantID }}</th>
-                    <td>{{ tenant.firstname }}</td>
-                    <td>{{ tenant.lastname }}</td>
-                    <td>{{ tenant.email }}</td>
-                    <td>
-                        <span
-                            :class="
-                                tenant.is_deactivated
-                                    ? 'badge bg-danger'
-                                    : 'badge bg-success'
-                            "
-                        >
-                            {{
-                                tenant.is_deactivated ? "Deactivated" : "Active"
-                            }}
-                        </span>
-                    </td>
-                    <td class="d-flex flex-wrap gap-2">
-                        <button
-                            class="btn btn-success btn-sm d-flex align-items-center"
-                            @click="viewTenantProfile(tenant.tenantID)"
-                        >
-                            <i class="bi bi-eye me-1"></i> View
-                        </button>
-
-                        <button
-                            class="btn btn-warning btn-sm d-flex align-items-center"
-                            :disabled="tenant.is_deactivated"
-                            @click="deactivatedTenant(tenant.tenantID)"
-                        >
-                            <i class="bi bi-slash-circle me-1"></i> Deactivate
-                        </button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-
-        <nav aria-label="Page navigation" class="mt-3">
-            <ul class="pagination justify-content-center flex-wrap">
-                <li class="page-item" :class="{ disabled: currentPage === 1 }">
-                    <button
-                        class="page-link"
-                        @click="fetchTenantsList(currentPage - 1)"
-                    >
-                        Previous
-                    </button>
-                </li>
-
-                <li
-                    class="page-item"
-                    v-for="page in lastPage"
-                    :key="page"
-                    :class="{ active: currentPage === page }"
+            <div>
+                <h1
+                    class="fw-bold text-dark mb-1"
+                    style="font-size: 1.75rem; color: #2a2d34"
                 >
-                    <button class="page-link" @click="fetchTenantsList(page)">
-                        {{ page }}
-                    </button>
-                </li>
+                    <i
+                        class="bi bi-people-fill me-2"
+                        style="color: #003c87"
+                    ></i>
+                    Tenant Management
+                </h1>
+                <p class="text-muted small mb-0">
+                    Monitor active accounts, view profiles, and manage
+                    permissions.
+                </p>
+            </div>
+            <button
+                class="btn btn-primary d-inline-flex align-items-center px-4 py-2.5 rounded-pill shadow-sm mt-3 mt-md-0 fw-semibold custom-btn-primary"
+                @click="downloadReport"
+            >
+                <i class="bi bi-file-earmark-arrow-down me-2"></i> Download
+                Tenant Report
+            </button>
+        </div>
 
-                <li
-                    class="page-item"
-                    :class="{ disabled: currentPage === lastPage }"
-                >
-                    <button
-                        class="page-link"
-                        @click="fetchTenantsList(currentPage + 1)"
+        <!-- Search Bar -->
+        <div
+            class="card border-0 shadow-sm rounded-4 p-3 mb-4 bg-white custom-search-card"
+        >
+            <div class="input-group">
+                <span class="input-group-text bg-transparent border-0 ps-3">
+                    <i class="bi bi-search fs-5" style="color: #003c87"></i>
+                </span>
+                <input
+                    type="text"
+                    class="form-control border-0 shadow-none bg-transparent ps-2 py-2"
+                    placeholder="Search tenant name..."
+                    aria-label="Search Tenant"
+                    v-model="searchTerm"
+                />
+            </div>
+        </div>
+
+        <!-- Tenants Table Section -->
+        <div
+            class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4 bg-white"
+            v-if="tenants && tenants.length"
+        >
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead
+                        class="table-light text-uppercase fs-7 text-secondary fw-bold"
                     >
-                        Next
-                    </button>
-                </li>
-            </ul>
-        </nav>
+                        <tr>
+                            <th scope="col" class="py-3 ps-4">#</th>
+                            <th scope="col" class="py-3">First Name</th>
+                            <th scope="col" class="py-3">Last Name</th>
+                            <th scope="col" class="py-3">Email</th>
+                            <th scope="col" class="py-3">Status</th>
+                            <th scope="col" class="py-3 text-end pe-4">
+                                Action
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr
+                            v-for="(tenant, index) in tenants"
+                            :key="tenant.tenantID"
+                        >
+                            <th scope="row" class="ps-4 text-muted fw-normal">
+                                {{ tenant.tenantID }}
+                            </th>
+                            <td class="fw-semibold text-dark">
+                                {{ tenant.firstname }}
+                            </td>
+                            <td class="fw-semibold text-dark">
+                                {{ tenant.lastname }}
+                            </td>
+                            <td class="text-muted">{{ tenant.email }}</td>
+                            <td>
+                                <span
+                                    :class="
+                                        tenant.is_deactivated
+                                            ? 'badge bg-danger bg-opacity-10 text-danger px-3 py-2 rounded-pill fw-semibold'
+                                            : 'badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill fw-semibold'
+                                    "
+                                >
+                                    {{
+                                        tenant.is_deactivated
+                                            ? "Deactivated"
+                                            : "Active"
+                                    }}
+                                </span>
+                            </td>
+                            <td class="text-end pe-4">
+                                <div class="d-inline-flex gap-2">
+                                    <button
+                                        class="btn btn-outline-primary btn-sm rounded-pill px-3 d-inline-flex align-items-center"
+                                        @click="
+                                            viewTenantProfile(tenant.tenantID)
+                                        "
+                                    >
+                                        <i class="bi bi-eye me-1"></i> View
+                                    </button>
+
+                                    <button
+                                        class="btn btn-outline-danger btn-sm rounded-pill px-3 d-inline-flex align-items-center"
+                                        :disabled="tenant.is_deactivated"
+                                        @click="
+                                            deactivatedTenant(tenant.tenantID)
+                                        "
+                                    >
+                                        <i class="bi bi-slash-circle me-1"></i>
+                                        Deactivate
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="card-footer bg-white border-0 py-3">
+                <nav aria-label="Page navigation">
+                    <ul
+                        class="pagination justify-content-center mb-0 flex-wrap"
+                    >
+                        <li
+                            class="page-item"
+                            :class="{ disabled: currentPage === 1 }"
+                        >
+                            <button
+                                class="page-link rounded-start-pill border-0 shadow-none text-secondary"
+                                @click="fetchTenantsList(currentPage - 1)"
+                            >
+                                Previous
+                            </button>
+                        </li>
+
+                        <li
+                            class="page-item"
+                            v-for="page in lastPage"
+                            :key="page"
+                            :class="{ active: currentPage === page }"
+                        >
+                            <button
+                                class="page-link border-0 shadow-none mx-1 rounded-circle custom-page-bubble"
+                                @click="fetchTenantsList(page)"
+                            >
+                                {{ page }}
+                            </button>
+                        </li>
+
+                        <li
+                            class="page-item"
+                            :class="{ disabled: currentPage === lastPage }"
+                        >
+                            <button
+                                class="page-link rounded-end-pill border-0 shadow-none text-secondary"
+                                @click="fetchTenantsList(currentPage + 1)"
+                            >
+                                Next
+                            </button>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Fallback when no tenants -->
+        <div
+            v-else
+            class="card border-0 shadow-sm rounded-4 p-5 bg-white text-center"
+        >
+            <div class="text-muted mb-2">
+                <i
+                    class="bi bi-folder2-open display-4"
+                    style="color: #003c87"
+                ></i>
+            </div>
+            <h5 class="fw-bold text-dark">No tenants found</h5>
+            <p class="text-muted small mb-0">
+                Try checking your search keyword or add new tenants.
+            </p>
+        </div>
     </div>
 
-    <!-- Fallback when no tenants -->
-    <div
-        v-else
-        class="alert alert-info text-center shadow-sm rounded d-flex align-items-center justify-content-center"
-    >
-        <i class="bi bi-exclamation-circle me-2"></i>
-        No tenants found.
-    </div>
+    <!-- Tenant Profile Modal -->
     <div
         v-if="tenantviewModal"
-        class="modal d-block fade show"
+        class="modal fade show d-block custom-modal-backdrop"
         tabindex="-1"
-        style="background-color: rgba(0, 0, 0, 0.5)"
     >
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div
                 class="modal-content border-0 shadow-lg rounded-4 overflow-hidden"
             >
-                <!-- Modal Header with gradient -->
+                <!-- Modal Header -->
                 <div
-                    class="modal-header p-3"
-                    style="
-                        background: linear-gradient(90deg, #4e73df, #224abe);
-                        color: #fff;
-                    "
+                    class="modal-header custom-modal-header text-white p-4 border-0"
                 >
-                    <h5 class="modal-title">Tenant Profile</h5>
+                    <h5 class="modal-title fw-bold">
+                        <i class="bi bi-person-badge me-2"></i> Tenant Profile
+                    </h5>
                     <button
                         type="button"
-                        class="btn-close btn-close-white"
+                        class="btn-close btn-close-white shadow-none"
                         @click="tenantviewModal = false"
                         aria-label="Close"
                     ></button>
@@ -162,12 +222,9 @@
                 <div class="modal-body p-4 bg-light">
                     <div
                         v-if="selectedTenant"
-                        class="d-flex flex-column flex-md-row align-items-center align-items-md-start"
+                        class="row g-4 align-items-center"
                     >
-                        <!-- Profile Image -->
-                        <div
-                            class="text-center text-md-start mb-3 mb-md-0 me-md-4"
-                        >
+                        <div class="col-md-4 text-center">
                             <img
                                 :src="
                                     selectedTenant.previewPicUrl
@@ -177,22 +234,21 @@
                                             selectedTenant.profilePicUrl
                                           : '/default-avatar.png'
                                 "
-                                class="rounded-circle border border-3 border-white shadow-sm"
+                                class="rounded-circle border border-3 border-white shadow-sm mb-3"
                                 style="
-                                    width: 150px;
-                                    height: 150px;
+                                    width: 130px;
+                                    height: 130px;
                                     object-fit: cover;
                                 "
-                                alt="Landlord Profile"
+                                alt="Tenant Profile"
                             />
-
                             <div>
                                 <span
-                                    class="badge mt-2"
+                                    class="badge px-3 py-2 rounded-pill fw-semibold"
                                     :class="
                                         selectedTenant.is_deactivated
-                                            ? 'bg-danger'
-                                            : 'bg-success'
+                                            ? 'bg-danger bg-opacity-10 text-danger'
+                                            : 'bg-success bg-opacity-10 text-success'
                                     "
                                 >
                                     {{
@@ -204,104 +260,87 @@
                             </div>
                         </div>
 
-                        <!-- Tenant Info -->
-                        <div class="flex-fill">
-                            <div class="row mb-2">
-                                <div class="col-md-6">
-                                    <p class="mb-1">
-                                        <strong class="text-primary"
-                                            >First Name:</strong
-                                        >
-                                        {{ selectedTenant.firstname }}
-                                    </p>
+                        <div class="col-md-8">
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <span
+                                        class="text-muted small text-uppercase fw-semibold d-block"
+                                        >First Name</span
+                                    >
+                                    <span class="fw-bold text-dark">{{
+                                        selectedTenant.firstname
+                                    }}</span>
                                 </div>
-                                <div class="col-md-6">
-                                    <p class="mb-1">
-                                        <strong class="text-primary"
-                                            >Last Name:</strong
-                                        >
-                                        {{ selectedTenant.lastname }}
-                                    </p>
+                                <div class="col-6">
+                                    <span
+                                        class="text-muted small text-uppercase fw-semibold d-block"
+                                        >Last Name</span
+                                    >
+                                    <span class="fw-bold text-dark">{{
+                                        selectedTenant.lastname
+                                    }}</span>
                                 </div>
-                            </div>
-
-                            <div class="row mb-2">
-                                <div class="col-md-6">
-                                    <p class="mb-1">
-                                        <strong class="text-primary"
-                                            >Gender:</strong
-                                        >
-                                        {{ selectedTenant.gender }}
-                                    </p>
+                                <div class="col-6">
+                                    <span
+                                        class="text-muted small text-uppercase fw-semibold d-block"
+                                        >Gender</span
+                                    >
+                                    <span class="text-dark">{{
+                                        selectedTenant.gender || "N/A"
+                                    }}</span>
                                 </div>
-                                <div class="col-md-6">
-                                    <p class="mb-1">
-                                        <strong class="text-primary"
-                                            >Current Address:</strong
-                                        >
-                                        {{ selectedTenant.currentAddress }}
-                                    </p>
+                                <div class="col-6">
+                                    <span
+                                        class="text-muted small text-uppercase fw-semibold d-block"
+                                        >Phone</span
+                                    >
+                                    <span class="text-dark">{{
+                                        selectedTenant.phoneNumber || "N/A"
+                                    }}</span>
                                 </div>
-                            </div>
-
-                            <div class="row mb-2">
-                                <div class="col-md-6">
-                                    <p class="mb-1">
-                                        <strong class="text-primary"
-                                            >Email:</strong
-                                        >
-                                        {{ selectedTenant.email }}
-                                    </p>
+                                <div class="col-12">
+                                    <span
+                                        class="text-muted small text-uppercase fw-semibold d-block"
+                                        >Email</span
+                                    >
+                                    <span class="text-dark">{{
+                                        selectedTenant.email
+                                    }}</span>
                                 </div>
-                                <div class="col-md-6">
-                                    <p class="mb-1">
-                                        <strong class="text-primary"
-                                            >Phone:</strong
-                                        >
-                                        {{ selectedTenant.phoneNumber }}
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div class="row mb-2">
-                                <div class="col-md-6">
-                                    <p class="mb-1">
-                                        <strong class="text-primary"
-                                            >City:</strong
-                                        >
-                                        {{ selectedTenant.city }}
-                                    </p>
-                                </div>
-                                <div class="col-md-6">
-                                    <p class="mb-1">
-                                        <strong class="text-primary"
-                                            >Province:</strong
-                                        >
-                                        {{ selectedTenant.province }}
-                                    </p>
+                                <div class="col-12">
+                                    <span
+                                        class="text-muted small text-uppercase fw-semibold d-block"
+                                        >Current Address</span
+                                    >
+                                    <span class="text-dark"
+                                        >{{
+                                            selectedTenant.currentAddress ||
+                                            "N/A"
+                                        }}, {{ selectedTenant.city || "" }}
+                                        {{
+                                            selectedTenant.province || ""
+                                        }}</span
+                                    >
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="modal-footer bg-light">
+                <div
+                    class="modal-footer bg-white border-0 p-3 d-flex justify-content-between"
+                >
                     <button
-                        class="btn btn-success d-inline-flex align-items-center"
+                        class="btn btn-outline-success rounded-pill px-4 fw-semibold"
                         @click="reActivateTenant(selectedTenant.tenantID)"
                         :disabled="!selectedTenant.is_deactivated"
-                        style="transition: transform 0.2s"
-                        onmouseover="this.style.transform = 'scale(1.1)'"
-                        onmouseout="this.style.transform = 'scale(1)'"
                     >
-                        <i class="bi bi-arrow-repeat me-1"></i>
-                        <!-- Reactivate icon -->
-                        Re Active
+                        <i class="bi bi-arrow-repeat me-1"></i> Reactivate
                     </button>
 
                     <button
                         type="button"
-                        class="btn btn-primary"
+                        class="btn btn-primary rounded-pill px-4 fw-semibold custom-btn-primary"
                         @click="OpensendEmailModal(selectedTenant)"
                     >
                         <i class="bi bi-envelope-fill me-1"></i> Send Email
@@ -310,84 +349,98 @@
             </div>
         </div>
     </div>
+
+    <!-- Send Email Modal -->
     <div
         v-if="emailModal"
-        class="modal d-block fade show"
+        class="modal fade show d-block custom-modal-backdrop"
         tabindex="-1"
-        style="background-color: rgba(0, 0, 0, 0.5)"
     >
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div
                 class="modal-content border-0 shadow-lg rounded-4 overflow-hidden"
             >
-                <!-- Modal Header with gradient -->
                 <div
-                    class="modal-header p-3"
-                    style="
-                        background: linear-gradient(90deg, #4e73df, #224abe);
-                        color: #fff;
-                    "
+                    class="modal-header custom-modal-header text-white p-4 border-0"
                 >
-                    <h5 class="modal-title">Send Email</h5>
+                    <h5 class="modal-title fw-bold">
+                        <i class="bi bi-envelope-paper me-2"></i> Send Email to
+                        Tenant
+                    </h5>
                     <button
                         type="button"
-                        class="btn-close btn-close-white"
+                        class="btn-close btn-close-white shadow-none"
                         @click="ClosesendEmailModal"
                         aria-label="Close"
                     ></button>
                 </div>
 
-                <!-- Modal Body -->
                 <div class="modal-body p-4 bg-light">
                     <form @submit.prevent="sendEmail">
                         <div class="mb-3">
-                            <label for="emailTo" class="form-label">To</label>
+                            <label
+                                for="emailTo"
+                                class="form-label fw-semibold text-secondary small text-uppercase"
+                                >To</label
+                            >
                             <input
                                 type="email"
-                                class="form-control"
+                                class="form-control rounded-3 py-2 px-3 border-0 bg-white shadow-sm text-muted"
                                 id="emailTo"
                                 v-model="emailForm.to"
-                                placeholder="Recipient email"
+                                readonly
                                 required
                             />
                         </div>
                         <div class="mb-3">
-                            <label for="emailSubject" class="form-label"
+                            <label
+                                for="emailSubject"
+                                class="form-label fw-semibold text-secondary small text-uppercase"
                                 >Subject</label
                             >
                             <input
                                 type="text"
-                                class="form-control"
+                                class="form-control rounded-3 py-2 px-3 border-0 bg-white shadow-sm"
                                 id="emailSubject"
                                 v-model="emailForm.subject"
-                                placeholder="Email subject"
+                                placeholder="Enter email subject..."
                                 required
                             />
                         </div>
                         <div class="mb-3">
-                            <label for="emailMessage" class="form-label"
+                            <label
+                                for="emailMessage"
+                                class="form-label fw-semibold text-secondary small text-uppercase"
                                 >Message</label
                             >
                             <textarea
-                                class="form-control"
+                                class="form-control rounded-3 py-2 px-3 border-0 bg-white shadow-sm"
                                 id="emailMessage"
                                 rows="5"
                                 v-model="emailForm.message"
-                                placeholder="Type your message..."
+                                placeholder="Type your message here..."
                                 required
                             ></textarea>
                         </div>
                     </form>
                 </div>
 
-                <!-- Modal Footer -->
-                <div class="modal-footer bg-light">
+                <div
+                    class="modal-footer bg-white border-0 p-3 d-flex justify-content-end gap-2"
+                >
                     <button
                         type="button"
-                        class="btn btn-primary"
+                        class="btn btn-outline-secondary rounded-pill px-4 fw-medium"
+                        @click="ClosesendEmailModal"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="button"
+                        class="btn btn-primary rounded-pill px-4 fw-semibold shadow-sm custom-btn-primary"
                         @click="sendEmail"
                     >
-                        <i class="bi bi-envelope-fill me-1"></i> Send Email
+                        <i class="bi bi-send-fill me-1"></i> Send Email
                     </button>
                 </div>
             </div>
@@ -397,6 +450,7 @@
     <Modalconfirmation ref="modal" />
     <Toastcomponents ref="toast" />
 </template>
+
 <script>
 import axios from "axios";
 import Loader from "@/components/loader.vue";
@@ -552,3 +606,49 @@ export default {
     },
 };
 </script>
+<style scoped>
+.custom-btn-primary {
+    background-color: #003c87 !important;
+    border-color: #003c87 !important;
+    transition: all 0.2s ease-in-out;
+}
+
+.custom-btn-primary:hover {
+    background-color: #002b66 !important;
+    border-color: #002b66 !important;
+    transform: translateY(-1px);
+}
+
+.custom-search-card {
+    border: 1.5px solid rgba(0, 60, 135, 0.1) !important;
+    transition: all 0.2s ease-in-out;
+}
+
+.custom-search-card:focus-within {
+    border-color: #003c87 !important;
+    box-shadow: 0 0 0 4px #e8f1ff !important;
+}
+
+.custom-modal-backdrop {
+    background-color: rgba(15, 23, 42, 0.65) !important;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.custom-modal-header {
+    background: linear-gradient(135deg, #003c87 0%, #002b66 100%) !important;
+}
+
+.custom-page-bubble {
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.page-item.active .custom-page-bubble {
+    background-color: #003c87 !important;
+    color: #fff !important;
+}
+</style>
