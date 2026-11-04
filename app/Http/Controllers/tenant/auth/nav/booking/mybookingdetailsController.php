@@ -73,17 +73,7 @@ public function payRoom(Request $request)
             'paymentImage.max' => 'The image must not be larger than 2MB.',
         ]);
 
-        // 🧹 Step 2: Delete old payment (and image if exists)
-        $existingPayment = bookingpaymentModel::where('fkbookingID', $request->fkbookingID)->first();
-
-        if ($existingPayment) {
-            if ($existingPayment->paymentImage) {
-                \Storage::disk('public')->delete($existingPayment->paymentImage);
-            }
-            $existingPayment->delete();
-        }
-
-        // 🖼️ Step 3: Image upload
+       
 
           $mainImageUrl = null;
         if ($request->hasFile('paymentImage')) {

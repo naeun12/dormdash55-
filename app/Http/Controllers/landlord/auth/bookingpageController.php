@@ -13,9 +13,9 @@ use App\Models\tenant\approvetenantsModel;
 use App\Models\tenant\approvepaymentModel;
 use App\Models\notificationModel;
 use App\Mail\TenantLandlordReminder;
+use App\Services\PhilSMSService;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-
-
 class bookingpageController extends Controller
 {
     public function bookingpageIndex($landlord_id)
@@ -195,28 +195,65 @@ public function getApplications(Request $request)
     ]);
 }
 
+
 public function handletenantBooking(Request $request)
 {
     $request->validate([
-        'bookingID'   => 'required|integer|exists:bookings,bookingID',
-        'landlordID'  => 'required|string',
-        'status'      => 'required|string|in:approved,rejected,confirmed,paid,pending,cancelled'
+        'bookingID'  => 'required|integer|exists:bookings,bookingID',
+        'landlordID' => 'required|string',
+        'status'     => 'required|string|in:approved,rejected,confirmed,paid,pending,cancelled'
     ]);
 
+    $landlordId = session('landlord_id');
+
+    if (!$landlordId || $request->landlordID != $landlordId) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Unauthorized action.'
+        ], 403);
+    }
+
     $booking = bookingModel::findOrFail($request->bookingID);
-    $room    = roomModel::findOrFail($booking->fkroomID);
-    $payment = bookingpaymentModel::where('fkbookingID', $request->bookingID)->first();
+
+    // Verify that this booking belongs to the logged-in landlord.
+    $room = roomModel::with(['dorm', 'landlord'])
+        ->where('roomID', $booking->fkroomID)
+        ->where('fklandlordID', $landlordId)
+        ->first();
+
+    if (!$room) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Booking room not found or unauthorized.'
+        ], 404);
+    }
+
+    $payment = bookingpaymentModel::where(
+        'fkbookingID',
+        $request->bookingID
+    )->first();
 
     try {
-        $tenantName = $booking->firstname . ' ' . $booking->lastname;
+
+        $tenantName = trim(
+            $booking->firstname . ' ' . $booking->lastname
+        );
+
+        $dormName = $room->dorm->dormName ?? 'Unknown Dorm';
+        $roomNumber = $room->roomNumber ?? 'N/A';
+
         $message = null;
+        $notifications = null;
         $type = 'tenant';
 
         switch ($request->status) {
+
             case 'pending':
-                $message = "Hi {$tenantName}, 👋 Your booking for Room {$room->roomNumber} at {$room->dorm} is pending landlord confirmation. Please wait ⏳.";
+
+                $message = "Hi {$tenantName}, your booking for Room {$roomNumber} at {$dormName} is pending landlord confirmation. Please wait.";
+
                 $notifications = notificationModel::create([
-                    'senderID'     => $request->landlordID,
+                    'senderID'     => $landlordId,
                     'senderType'   => 'landlord',
                     'receiverID'   => $booking->fktenantID,
                     'receiverType' => 'tenant',
@@ -224,12 +261,16 @@ public function handletenantBooking(Request $request)
                     'message'      => $message,
                     'isRead'       => false,
                 ]);
+
                 break;
 
+
             case 'confirmed':
-                $message = "Hi {$tenantName}, 👋 Your booking for Room {$room->roomNumber} at {$room->dorm->dormName} has been confirmed. Please proceed with payment ✅.";
+
+                $message = "Hi {$tenantName}, your booking for Room {$roomNumber} at {$dormName} has been confirmed. Please proceed with payment.";
+
                 $notifications = notificationModel::create([
-                    'senderID'     => $request->landlordID,
+                    'senderID'     => $landlordId,
                     'senderType'   => 'landlord',
                     'receiverID'   => $booking->fktenantID,
                     'receiverType' => 'tenant',
@@ -237,34 +278,40 @@ public function handletenantBooking(Request $request)
                     'message'      => $message,
                     'isRead'       => false,
                 ]);
+
                 break;
 
+
             case 'approved':
+
                 if ($room->availability === 'Occupied') {
                     return response()->json([
                         'status' => 'error',
                         'message' => 'This room is already occupied. You cannot approve another tenant.',
                     ], 403);
                 }
-              $approve =  approvetenantsModel::create([
-                    'fktenantID'       => $booking->fktenantID,
-                    'fkroomID'          => $booking->fkroomID,
-                    'source_type'       => 'Booking', 
-                    'source_id'         => $booking->bookingID,
-                    'firstname'         => $booking->firstname,
-                    'lastname'          => $booking->lastname,
-                    'contactNumber'     => $booking->contactNumber,
-                    'moveInDate'        => $booking->moveInDate,
-                    'moveOutDate'       => $booking->moveOutDate,
-                    'contactEmail'      => $booking->contactEmail,
-                    'age'               => $booking->age,
-                    'gender'            => $booking->gender,
-                    'status'            => 'pending',
-                    'pictureID'        => $booking->pictureID,
+
+                approvetenantsModel::create([
+                    'fktenantID'   => $booking->fktenantID,
+                    'fkroomID'     => $booking->fkroomID,
+                    'source_type'  => 'Booking',
+                    'source_id'    => $booking->bookingID,
+                    'firstname'    => $booking->firstname,
+                    'lastname'     => $booking->lastname,
+                    'contactNumber'=> $booking->contactNumber,
+                    'moveInDate'   => $booking->moveInDate,
+                    'moveOutDate'  => $booking->moveOutDate,
+                    'contactEmail' => $booking->contactEmail,
+                    'age'          => $booking->age,
+                    'gender'       => $booking->gender,
+                    'status'       => 'pending',
+                    'pictureID'    => $booking->pictureID,
                 ]);
-                $message = "Hi {$tenantName}, 👋 Your booking for Room {$room->roomNumber} at {$room->dorm->dormName} has been approved 🎉.";
+
+                $message = "Hi {$tenantName}, your booking for Room {$roomNumber} at {$dormName} has been approved.";
+
                 $notifications = notificationModel::create([
-                    'senderID'     => $request->landlordID,
+                    'senderID'     => $landlordId,
                     'senderType'   => 'landlord',
                     'receiverID'   => $booking->fktenantID,
                     'receiverType' => 'tenant',
@@ -276,12 +323,16 @@ public function handletenantBooking(Request $request)
                 $room->availability = 'Reserved';
                 $room->updated_at = now();
                 $room->save();
+
                 break;
 
+
             case 'rejected':
-                $message = "Hi {$tenantName}, 👋 We regret to inform you that your booking for Room {$room->roomNumber} at {$room->dorm->dormName} has been declined ❌.";
+
+                $message = "Hi {$tenantName}, your booking for Room {$roomNumber} at {$dormName} has been declined.";
+
                 $notifications = notificationModel::create([
-                    'senderID'     => $request->landlordID,
+                    'senderID'     => $landlordId,
                     'senderType'   => 'landlord',
                     'receiverID'   => $booking->fktenantID,
                     'receiverType' => 'tenant',
@@ -289,33 +340,74 @@ public function handletenantBooking(Request $request)
                     'message'      => $message,
                     'isRead'       => false,
                 ]);
-                  $booking->status = $request->status;
-                    $booking->updated_at = now();
-                    $booking->save();
-                    break;
+
+                break;
         }
+
 
         // Update booking status
         $booking->status = $request->status;
         $booking->updated_at = now();
         $booking->save();
-
-        // Broadcast notification if exists
-        if (isset($notifications)) {
-            broadcast(new \App\Events\NewNotificationEvent($notifications));
+        if ($notifications) {
+            broadcast(
+                new \App\Events\NewNotificationEvent($notifications)
+            );
         }
-
-        // Send email if message exists
         if ($message) {
-            Mail::to($booking->contactEmail)->send(new TenantLandlordReminder($tenantName, $message, $type));
+            try {
+                Mail::to($booking->contactEmail)->send(
+                    new TenantLandlordReminder(
+                        $tenantName,
+                        $message,
+                        $type
+                    )
+                );
+            } catch (\Throwable $e) {
+                Log::error('Booking email failed: ' . $e->getMessage());
+            }
         }
+        try {
+
+            $smsMessage = match ($request->status) {
+
+                'approved' =>
+                    "DormDash: Hi {$tenantName}! Your booking for Room {$roomNumber} at {$dormName} has been approved.",
+
+                'rejected' =>
+                    "DormDash: Hi {$tenantName}! Your booking for Room {$roomNumber} at {$dormName} has been rejected.",
+
+                'confirmed' =>
+                    "DormDash: Hi {$tenantName}! Your booking for Room {$roomNumber} at {$dormName} is confirmed. Please proceed with payment.",
+
+                default => null,
+            };
+
+            if ($smsMessage && !empty($booking->contactNumber)) {
+
+                app(PhilSMSService::class)->sendSMS(
+                    $booking->contactNumber,
+                    $smsMessage
+                );
+
+            }
+
+        } catch (\Throwable $e) {
+
+            Log::error('Tenant booking SMS failed: ' . $e->getMessage());
+
+        }
+
 
         return response()->json([
             'status'  => 'success',
             'message' => "Booking status updated to {$request->status}.",
         ]);
 
-    } catch (\Exception $e) {
+    } catch (\Throwable $e) {
+
+        Log::error('Booking update failed: ' . $e->getMessage());
+
         return response()->json([
             'status'  => 'error',
             'message' => 'Failed to update booking.',
@@ -337,15 +429,11 @@ public function deleteBooking($id)
         }
         $booking->isDeleted = true;
         $booking->save();
-
         return response()->json([
             'status' => 'success',
             'message' => 'Tenant Booking record temporary deleted successfully.'
         ]);
-
     } catch (\Exception $e) {
-        \Log::error('Error deleting booking: ' . $e->getMessage());
-
         return response()->json([
             'status' => 'error',
             'message' => 'An error occurred while deleting the tenant screening record.',

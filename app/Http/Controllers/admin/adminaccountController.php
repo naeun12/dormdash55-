@@ -15,11 +15,9 @@ class adminaccountController extends Controller
 
 public function createAdmin(Request $request)
 {
-   
-
     $admin = AdminModel::create([
-        'name' => 'Cassandra',
-        'username' => 'admin',
+        'name' => 'Spongebob',
+        'username' => 'admin123',
         'password' => Hash::make('admin123'),
     ]);
 

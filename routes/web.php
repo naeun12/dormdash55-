@@ -5,6 +5,7 @@ use App\Http\Controllers\landingPageController;
 use App\Http\Middleware\AfterRegistrationMiddleware;
 //tenant
 use App\Http\Controllers\tenant\auth\tenantupdateaccountController;
+use App\Services\PhilSMSService;
 
 use App\Http\Middleware\TenantAuth;
 use App\Http\Controllers\tenant\tenantController;
@@ -366,12 +367,6 @@ Route::middleware(['web', AdminAuth::class])->group(function () {
 Route::get('/test-auth', function () {
     return auth('landlord')->check() ? 'Authenticated as landlord' : 'NOT authenticated';
 });
-
-
-
-
-
-
 
 
 
