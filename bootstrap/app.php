@@ -1,3 +1,4 @@
+
 <?php
 
 use App\Console\Kernel as ConsoleKernel;
@@ -5,6 +6,7 @@ use App\Http\Kernel as HttpKernel;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Request;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -14,13 +16,20 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // register global middleware here if needed
+        $middleware->trustProxies(
+            at: '*',
+            headers: Request::HEADER_X_FORWARDED_FOR |
+                     Request::HEADER_X_FORWARDED_HOST |
+                     Request::HEADER_X_FORWARDED_PORT |
+                     Request::HEADER_X_FORWARDED_PROTO
+        );
     })
     ->withExceptions(function (Exceptions $exceptions) {
         // register exception handlers here if needed
-    }) ->withProviders([
+    })
+    ->withProviders([
         \App\Providers\BroadcastServiceProvider::class,
-    ]) 
+    ])
     ->withKernels(
         HttpKernel::class,
         ConsoleKernel::class
