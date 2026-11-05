@@ -84,7 +84,7 @@
 
         <!-- Footer Section -->
         <div class="footer">
-            <p>&copy; 2025 DormDash. All rights reserved.</p>
+            <p>&copy; 2026 DormDash. All rights reserved.</p>
             <p>
                 If you have any questions, feel free to contact us at
                 <a href="mailto:niiinaeun@gmail.com">niiinaeun@gmail.com</a>.

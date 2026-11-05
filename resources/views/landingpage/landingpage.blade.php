@@ -165,7 +165,7 @@
                         <div class="card-img-overlay d-flex flex-column justify-content-end bg-gradient-brand">
                             <div class="d-flex justify-content-between align-items-end text-white w-100">
                                 <div>
-                                    <h5 class="fw-bold mb-0">Palm Grove Dorm</h5>
+                                    <h5 class="fw-bold mb-0">Navarro Dorm</h5>
                                     <p class="small mb-0 opacity-75">Surigao City</p>
                                 </div>
                                 <button class="btn btn-sm btn-light rounded-pill px-3 fw-bold" data-bs-toggle="modal" data-bs-target="#exampleModal">Explore</button>
@@ -178,7 +178,7 @@
                     <div class="card border-0 shadow-lg rounded-4 overflow-hidden small-dorm-card" style="height: 200px;">
                         <img src="{{ asset('images/landingpage/dorm4.jpg') }}" class="w-100 h-100 zoom-img" alt="Lapu Cozy" style="object-fit: cover;">
                         <div class="card-img-overlay d-flex flex-column justify-content-end bg-gradient-brand p-3">
-                            <h6 class="fw-bold text-white mb-0">Lapu Cozy</h6>
+                            <h6 class="fw-bold text-white mb-0">Luna Dorm</h6>
                             <p class="x-small text-white opacity-75 mb-0">⭐ 4.7 • Libuac</p>
                         </div>
                     </div>
@@ -188,7 +188,7 @@
                     <div class="card border-0 shadow-lg rounded-4 overflow-hidden small-dorm-card" style="height: 200px;">
                         <img src="{{ asset('images/landingpage/dorm3.jpg') }}" class="w-100 h-100 zoom-img" alt="Cityside" style="object-fit: cover;">
                         <div class="card-img-overlay d-flex flex-column justify-content-end bg-gradient-brand p-3">
-                            <h6 class="fw-bold text-white mb-0">Cityside Stay</h6>
+                            <h6 class="fw-bold text-white mb-0">Taft Side</h6>
                             <p class="x-small text-white opacity-75 mb-0">⭐ 4.5 • Alang-alang</p>
                         </div>
                     </div>
@@ -300,7 +300,7 @@
                 <div class="position-absolute top-50 start-50 translate-middle" style="width: 110%; height: 110%; background: radial-gradient(circle, rgba(252,125,7,0.08) 0%, rgba(255,255,255,0) 70%); z-index: -1;"></div>
                 
                 <div class="image-wrapper p-2 bg-white shadow-lg rounded-4">
-                    <img src="{{ asset('images/landingpage/surigao.jpg') }}" class="img-fluid rounded-3" 
+                    <img src="{{ asset('images/landingpage/surigaolandingpage.jpg') }}" class="img-fluid rounded-3" 
                          alt="Map of Surigao showing dormitory locations" style="display: block; height: 100%; width: 100%;">
                 </div>
                 
