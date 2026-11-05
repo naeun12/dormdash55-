@@ -240,7 +240,7 @@ export default {
     data() {
         return {
             logoImage:
-                "https://capstonedormhubdeploy1-production.up.railway.app/images/Logo/logo.png",
+                "https://dormdash55-production.up.railway.app/images/Logo/logo.png",
             map: null,
             draggableMarker: null,
             nearbyDorms: [],

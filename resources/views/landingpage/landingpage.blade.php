@@ -337,7 +337,7 @@
                             </div>
                             <div>
                                 <p class="mb-0 text-muted small text-uppercase fw-bold">Email Us</p>
-                                <p class="mb-0 fw-bold" style="font-size: 0.95rem;">niiinaeun@gmail.com</p>
+                                <p class="mb-0 fw-bold" style="font-size: 0.95rem;">kassandraolvis@gmail.com</p>
                             </div>
                         </div>
                     </div>
@@ -349,7 +349,7 @@
                             </div>
                             <div>
                                 <p class="mb-0 text-muted small text-uppercase fw-bold">Call Anytime</p>
-                                <p class="mb-0 fw-bold" style="font-size: 0.95rem;">+63 923 124 1628</p>
+                                <p class="mb-0 fw-bold" style="font-size: 0.95rem;">+63 9062215117</p>
                             </div>
                         </div>
                     </div>
@@ -526,8 +526,7 @@
                     <a href="https://www.facebook.com/profile.php?id=61580194851438" class="social-icon" target="_blank">
                         <i class="fab fa-facebook-f fs-5"></i>
                     </a>
-                    <a href="#" class="social-icon"><i class="fab fa-instagram fs-5"></i></a>
-                    <a href="#" class="social-icon"><i class="fab fa-twitter fs-5"></i></a>
+                    
                 </div>
             </div>
 
