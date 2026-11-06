@@ -98,7 +98,7 @@ public function IdentityVerifaction(Request $request)
         // Python FastAPI endpoint
         $pythonApiUrl = env(
             'ID_AI_API_URL',
-            'http://127.0.0.1:8002/analyze'
+            'https://dormdashai-production.up.railway.app/analyze'
         );
 
         // Send image to Python
@@ -108,7 +108,7 @@ public function IdentityVerifaction(Request $request)
                 file_get_contents($image->getRealPath()),
                 $image->getClientOriginalName()
             )
-            ->post($pythonApiUrl);
+            ->post($pythonApiUrl);  
 
         // Python API error
         if (!$response->successful()) {
