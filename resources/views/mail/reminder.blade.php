@@ -83,7 +83,7 @@
         <div class="footer">
             <p>&copy; 2025 DormDash. All rights reserved.</p>
             <p>
-                Questions? Email us at <a href="mailto:niiinaeun@gmail.com">niiinaeun@gmail.com</a>
+                Questions? Email us at <a href="mailto:">kassandraolvis@gmail.com</a>
             </p>
         </div>
     </div>

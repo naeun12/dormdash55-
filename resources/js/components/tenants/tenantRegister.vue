@@ -98,7 +98,7 @@
                             type="text"
                             v-model="firstname"
                             class="form-control custom-field"
-                            placeholder="e.g. Lance"
+                            placeholder="e.g. John"
                         />
                         <span
                             v-if="errors.firstname"
@@ -114,7 +114,7 @@
                             type="text"
                             v-model="lastname"
                             class="form-control custom-field"
-                            placeholder="e.g. Monsanto"
+                            placeholder="e.g. Doe"
                         />
                         <span
                             v-if="errors.lastname"
@@ -143,7 +143,7 @@
                             v-model="email"
                             class="form-control border-start-0 custom-field"
                             style="border-radius: 0 12px 12px 0"
-                            placeholder="lance@example.com"
+                            placeholder="johnExample.com"
                         />
                     </div>
                     <span
