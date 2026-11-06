@@ -106,4 +106,49 @@
         max-width: 85%;
     }
 }
+/* Inbox scrollbar */
+.list-group.overflow-auto {
+    scrollbar-width: thin;
+    scrollbar-color: #adb5bd #f8f9fa;
+}
+
+.list-group.overflow-auto::-webkit-scrollbar {
+    width: 6px;
+}
+
+.list-group.overflow-auto::-webkit-scrollbar-track {
+    background: #f8f9fa;
+}
+
+.list-group.overflow-auto::-webkit-scrollbar-thumb {
+    background: #adb5bd;
+    border-radius: 10px;
+}
+
+.list-group.overflow-auto::-webkit-scrollbar-thumb:hover {
+    background: #003C87;
+}
+
+/* Chat messages scrollbar */
+.chat-messages-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: #adb5bd #f8f9fa;
+}
+
+.chat-messages-scroll::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chat-messages-scroll::-webkit-scrollbar-track {
+    background: #f8f9fa;
+}
+
+.chat-messages-scroll::-webkit-scrollbar-thumb {
+    background: #adb5bd;
+    border-radius: 10px;
+}
+
+.chat-messages-scroll::-webkit-scrollbar-thumb:hover {
+    background: #003C87;
+}
 
