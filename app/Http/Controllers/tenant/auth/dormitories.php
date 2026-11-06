@@ -407,7 +407,7 @@ public function getQuestionRecommendations(Request $request)
 
 
 // Send POST request to Flask API
-$apiUrl = env('AI_API_URL') . '/'.'dormitories';
+$apiUrl = "https://pythonaideploy-production.up.railway.app/ask-ai/dormitories";
 
 
 $response = Http::post($apiUrl, [

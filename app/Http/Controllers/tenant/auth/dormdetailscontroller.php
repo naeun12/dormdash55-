@@ -203,8 +203,8 @@ class dormdetailscontroller extends Controller
 {
     $dormId   = $request->input('dormID');
     $question = $request->input('question');
-
-    $apiUrl = rtrim(env('AI_API_URL'), '/') . '/' . $dormId;
+       $link = "https://pythonaideploy-production.up.railway.app/ask-ai";
+    $apiUrl = $link . '/' . $dormId;
 
     // Send POST request to Flask API
     $response = Http::timeout(60)->post($apiUrl, [
