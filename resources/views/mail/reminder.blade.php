@@ -81,7 +81,7 @@
 
         <!-- Footer -->
         <div class="footer">
-            <p>&copy; 2025 DormDash. All rights reserved.</p>
+            <p>&copy; 2026 DormDash. All rights reserved.</p>
             <p>
                 Questions? Email us at <a href="mailto:">kassandraolvis@gmail.com</a>
             </p>

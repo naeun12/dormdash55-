@@ -249,7 +249,7 @@
             
             <div class="col-lg-6">
                 <span class="badge mb-3 px-3 py-2 rounded-pill" style="background-color: rgba(0, 60, 135, 0.1); color: #003C87; font-weight: 600; letter-spacing: 0.5px;">
-                    EST. 2025
+                    EST. 2026
                 </span>
                 
                 <h2 class="fw-bold text-uppercase mb-4" style="color: #003C87; border-left: 5px solid #FC7D07; padding-left: 15px;">
