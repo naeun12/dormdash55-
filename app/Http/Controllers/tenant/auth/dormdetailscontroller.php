@@ -1,13 +1,11 @@
 <?php
 
-
 namespace App\Http\Controllers\tenant\auth;
-
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\landlord\dormModel;
-use App\Models\landlord\tenantscreeningModel;
+use App\Models\landlord\dormModel; 
+use App\Models\landlord\tenantscreeningModel; 
 use Illuminate\Support\Facades\Http;
 use App\Models\landlord\roomModel;
 use App\Models\tenant\tenantModel;
@@ -29,17 +27,15 @@ class dormdetailscontroller extends Controller
             if (!$sessionTenant_id) {
                 return redirect()->route('tenant-login')->with('error', 'Please log in as a landlord.');
             }
-       
+        
             if ($tenant_id !== $sessionTenant_id) {
                 return redirect()->route('tenant-login')->with('error', 'Unauthorized access.');
             }
                 $dorm = dormModel::find($dormitory_id);
 
-
                 $dorm->increment('views');
 
-
-       
+        
             $tenant = tenantModel::find($tenant_id);
             if (!$tenant) {
                 return redirect()->route('tenant-login')->with('error', 'Landlord not found.');
@@ -56,7 +52,6 @@ class dormdetailscontroller extends Controller
         public function ViewDorms(Request $request)
 {
     $dormitory_id = $request->query('dormitory_id');
-
 
     $dorm = dormModel::with([
         'amenities',
@@ -81,7 +76,6 @@ class dormdetailscontroller extends Controller
     ->where('dormID', $dormitory_id)
     ->first();
 
-
     if (!$dorm) {
         return response()->json([
             'status' => 'error',
@@ -89,14 +83,12 @@ class dormdetailscontroller extends Controller
         ], 404);
     }
 
-
     return response()->json([
         'status' => 'success',
         'dorm' => $dorm,
         'landlord' => $dorm->landlord,
     ]);
 }
-
 
            public function tenantInformation(Request $request)
 {
@@ -126,7 +118,6 @@ class dormdetailscontroller extends Controller
         'email.required'         => 'Please enter your email address.',
         'email.email'            => 'That doesn’t look like a valid email address.',
     ]);
-
 
     try {
         return response()->json(['status' => 'success']);
@@ -161,7 +152,7 @@ class dormdetailscontroller extends Controller
             }
             try
             {
-                return response()->json(['status' => 'success',      
+                return response()->json(['status' => 'success',       
                 'image_url' => $mainImageUrl,
             ]);
             }
@@ -169,17 +160,17 @@ class dormdetailscontroller extends Controller
             {
                 return response()->json([
                     'status' => 'error',
-                   
+                    
                     'message' => $e->errors(),
                 ], 422);
-       
+        
             } catch (\Exception $e) {
                 return response()->json([
                     'status' => 'error',
                     'message' => $e->getMessage(),
                 ], 500);
             }
-           
+            
         }
         public function reviewStats($dormID)
         {
@@ -191,7 +182,6 @@ class dormdetailscontroller extends Controller
         'total_reviewers' => $total,
         'average_percentage' => $percentage
             ]);
-
 
         }
         public function getdormAskAI($id)
@@ -216,24 +206,19 @@ class dormdetailscontroller extends Controller
         'question' => 'required|string',
     ]);
 
-
     $dormId = $request->input('dormID');
     $question = $request->input('question');
 
-
     // Correct Flask API URL
     $apiUrl = "https://pythonaideploy-production.up.railway.app/ask-ai/" . $dormId;
-
 
     try {
         $response = Http::timeout(60)->post($apiUrl, [
             'question' => $question,
         ]);
 
-
         if ($response->successful()) {
             $result = $response->json();
-
 
             return response()->json([
                 'success' => true,
@@ -244,13 +229,11 @@ class dormdetailscontroller extends Controller
             ]);
         }
 
-
         Log::error('Flask AI API Error', [
             'url' => $apiUrl,
             'status' => $response->status(),
             'response' => $response->body(),
         ]);
-
 
         return response()->json([
             'success' => false,
@@ -259,15 +242,12 @@ class dormdetailscontroller extends Controller
             'error' => $response->body(),
         ], 502);
 
-
     } catch (\Exception $e) {
-
 
         Log::error('Laravel AI Error', [
             'message' => $e->getMessage(),
             'url' => $apiUrl,
         ]);
-
 
         return response()->json([
             'success' => false,
@@ -282,7 +262,6 @@ class dormdetailscontroller extends Controller
             ->where('roomID', $room_id)
             ->first();
 
-
         return response()->json([
             'success' => true,
             'roomDetail' => $roomDetail
@@ -293,11 +272,7 @@ class dormdetailscontroller extends Controller
     $tenant_id = $request->input('tenant_id');
 
 
-
-
     $tenant = tenantModel::find($tenant_id);
-
-
 
 
     if (!$tenant) {
@@ -308,16 +283,11 @@ class dormdetailscontroller extends Controller
     }
 
 
-
-
     return response()->json([
         'status' => 'success',
         'tenant' => $tenant,
     ]);
 }
-
-
-
 
 
 

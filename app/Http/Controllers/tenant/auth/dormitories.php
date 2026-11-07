@@ -11,15 +11,7 @@ use Illuminate\Support\Facades\Log;
 use App\Models\notificationModel;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\Exception\ProcessFailedException;
-
-
-
-
 use Illuminate\Support\Facades\Http;
-
-
-
-
 class dormitories extends Controller
 {
     public function dormitoriesListing($tenant_id)
