@@ -209,16 +209,17 @@ class dormdetailscontroller extends Controller
     $dormId = $request->input('dormID');
     $question = $request->input('question');
 
+    // Correct Flask API URL
     $apiUrl = "https://pythonaideploy-production.up.railway.app/ask-ai/" . $dormId;
 
     try {
-        $response = Http::timeout(120)->post($apiUrl, [
+        $response = Http::timeout(60)->post($apiUrl, [
             'question' => $question,
         ]);
 
-        $result = $response->json();
-
         if ($response->successful()) {
+            $result = $response->json();
+
             return response()->json([
                 'success' => true,
                 'answer' => $result['answer'] ?? 'No answer found',
@@ -236,12 +237,13 @@ class dormdetailscontroller extends Controller
 
         return response()->json([
             'success' => false,
-            'message' => 'AI request failed.',
+            'message' => 'AI request failed',
             'status' => $response->status(),
-            'error' => $result['error'] ?? $response->body(),
+            'error' => $response->body(),
         ], 502);
 
-    } catch (\Throwable $e) {
+    } catch (\Exception $e) {
+
         Log::error('Laravel AI Error', [
             'message' => $e->getMessage(),
             'url' => $apiUrl,
@@ -253,7 +255,8 @@ class dormdetailscontroller extends Controller
             'error' => $e->getMessage(),
         ], 500);
     }
-} public function roomDetails($room_id)
+}
+ public function roomDetails($room_id)
     {
         $roomDetail = roomModel::with('features')
             ->where('roomID', $room_id)

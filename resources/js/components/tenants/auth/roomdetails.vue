@@ -813,6 +813,11 @@ export default {
         return {
             notifications: [],
             askAIModal: false,
+            aiQuestion: "",
+            aiResponse: "",
+            selectedDormAI: {
+                dormName: "",
+            },
             receiverID: "",
             landlordname: [],
             landlordImage: null,
@@ -1202,24 +1207,41 @@ export default {
             }
         },
         async askAI() {
-            try {
-                this.$refs.loader.loading = true;
+            this.$refs.loader.loading = true;
 
+            try {
                 const res = await axios.get(
                     `/get/dorm/askai/${this.dormitory_id}`,
                 );
-                if (res.data.status === "success") {
-                    this.askAIModal = true;
-                    this.selectedDormAI = res.data.data;
-                    this.$refs.loader.loading = false;
 
-                    console.log(this.selectedDormAI);
+                console.log("ASK AI RESPONSE:", res.data);
+
+                if (res.data.status === "success") {
+                    this.selectedDormAI = res.data.data;
+                    this.askAIModal = true;
+                } else {
+                    console.error("AI response unsuccessful:", res.data);
+
+                    this.$refs.toast.showToast(
+                        res.data.message || "Unable to load AI assistant.",
+                        "danger",
+                    );
                 }
             } catch (error) {
+                console.error("ASK AI ERROR:", error.response?.data || error);
+
+                this.$refs.toast.showToast(
+                    "Unable to open AI assistant. Please try again.",
+                    "danger",
+                );
             } finally {
+                this.$refs.loader.loading = false;
             }
         },
         async sendToAI() {
+            console.log("sendToAI triggered!");
+            console.log("Question:", this.aiQuestion);
+
             if (!this.aiQuestion || !this.aiQuestion.trim()) {
                 this.aiResponse =
                     "⚠️ Please enter a question before asking AI.";
@@ -1227,18 +1249,25 @@ export default {
             }
 
             this.$refs.loader.loading = true;
+            this.aiResponse = "";
 
             try {
-                const formdata = new FormData();
-
-                formdata.append("question", this.aiQuestion.trim());
-                formdata.append("dormID", this.dormitory_id);
-
-                const res = await axios.post("/send/ai", formdata, {
-                    headers: {
-                        Accept: "application/json",
+                const res = await axios.post(
+                    "/send/ai",
+                    {
+                        question: this.aiQuestion.trim(),
+                        dormID: this.dormitory_id,
                     },
-                });
+                    {
+                        headers: {
+                            Accept: "application/json",
+                            "Content-Type": "application/json",
+                        },
+                        timeout: 130000,
+                    },
+                );
+
+                console.log("AI RESPONSE:", res.data);
 
                 if (res.data.success) {
                     this.aiResponse = res.data.answer || "No answer received.";
@@ -1249,14 +1278,13 @@ export default {
                         "⚠️ AI could not process your request.";
                 }
             } catch (error) {
-                console.error(
-                    "AI REQUEST ERROR:",
-                    error.response?.data || error,
-                );
+                console.error("AI REQUEST ERROR:", error);
+                console.error("SERVER RESPONSE:", error.response?.data);
 
                 this.aiResponse =
                     error.response?.data?.error ||
                     error.response?.data?.message ||
+                    error.message ||
                     "❌ Something went wrong while contacting AI.";
             } finally {
                 this.$refs.loader.loading = false;
