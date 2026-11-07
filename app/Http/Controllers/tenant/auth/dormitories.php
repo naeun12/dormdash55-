@@ -1,10 +1,9 @@
 <?php
-
 namespace App\Http\Controllers\tenant\auth;
 use App\Models\landlord\landlordModel;
 use App\Models\landlord\roomModel;
-use App\Models\landlord\dormModel; 
-use App\Models\tenant\tenantModel; 
+use App\Models\landlord\dormModel;
+use App\Models\tenant\tenantModel;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -14,7 +13,11 @@ use Symfony\Component\Process\Process;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 
 
+
+
 use Illuminate\Support\Facades\Http;
+
+
 
 
 class dormitories extends Controller
@@ -48,45 +51,54 @@ class dormitories extends Controller
     ]);
 
 
+
+
     }
-    public function Listdorms()
-    {
-        $dorms = dormModel::with(['amenities','images'])->paginate(10);
-        $count = $dorms->total();
-        return response()->Json([
-            'status' => 'success',
-            'dorms' => $dorms,
-            'total_dorms' => $count
-        ]);
-    }
-    public function selectedCityDorms(Request $request)
+   
+public function Listdorms()
 {
-    $city = $request->input('city'); // from Vue buttons
-
-
-        $dorms = dormModel::with(['amenities', 'images'])
-            ->when($city && $city !== 'All', function ($query) use ($city) {
-                $query->where(function ($q) use ($city) {
-                    $q->where('address', 'like', '%' . $city . '%');
-                // You can add more columns if needed
-            });
-        })
+    $dorms = dormModel::with(['amenities', 'images'])
+        ->where('address', 'LIKE', '%Surigao%')
         ->paginate(10);
 
 
     return response()->json([
         'status' => 'success',
-        'total_dorms' => $dorms->count(),
+        'dorms' => $dorms,
+        'total_dorms' => $dorms->total(),
+        'surigao_dorms' => $dorms->total(),
+    ]);
+}
+
+
+    public function selectedCityDorms(Request $request)
+{
+    $city = $request->input('city', 'Surigao');
+
+
+    $dorms = dormModel::with(['amenities', 'images'])
+        ->where('address', 'LIKE', '%' . $city . '%')
+        ->paginate(10);
+
+
+    return response()->json([
+        'status' => 'success',
+        'total_dorms' => $dorms->total(),
         'dorms' => $dorms,
     ]);
 }
 
 
+
+
 // Optional helper to handle common city aliases
+
 
 public function fetchAmenities()
 {
     $amenities = DB::table('amenities')->get();
+
+
 
 
     return response()->json([
@@ -99,7 +111,11 @@ public function getAmenities(Request $request)
     $amenities = $request->input('amenities', []); // array of amenity IDs
 
 
+
+
     $dormsQuery = dormModel::with(['amenities', 'images']);
+
+
 
 
     if (!empty($amenities)) {
@@ -109,7 +125,11 @@ public function getAmenities(Request $request)
     }
 
 
+
+
     $dorms = $dormsQuery->paginate(10);
+
+
 
 
     return response()->json([
@@ -122,7 +142,11 @@ public function getRate(Request $request)
     $rate = $request->input('rating');
 
 
+
+
     $dormsQuery = dormModel::with(['images', 'reviews']);
+
+
 
 
     if ($rate !== null && is_numeric($rate)) {
@@ -130,12 +154,18 @@ public function getRate(Request $request)
     }
 
 
+
+
     $dorms = $dormsQuery->paginate(10)->through(function($dorm) {
     $avgRating = $dorm->reviews->avg('rating') ?? 0;
     $dorm->rating_percentage = round(($avgRating / 5) * 100, 2);
 
 
+
+
     unset($dorm->reviews);
+
+
 
 
     return $dorm;
@@ -149,12 +179,20 @@ public function getRate(Request $request)
 
 
 
+
+
+
+
 public function getSortByDate(Request $request)
 {
     $sortBy = $request->input('sortBy'); // from frontend
 
 
+
+
     $dormsQuery = dormModel::with('images');
+
+
 
 
     if ($sortBy === 'new-old') {
@@ -164,7 +202,11 @@ public function getSortByDate(Request $request)
     }
 
 
+
+
     $dorms = $dormsQuery->paginate(10);
+
+
 
 
     return response()->json([
@@ -180,6 +222,8 @@ public function getAvailability(Request $request)
     $dormsQuery = dormModel::with(['rooms', 'images']);
 
 
+
+
     if ($availability && $availability !== 'all') {
         $dormsQuery->whereHas('rooms', function($q) use ($availability) {
             $q->whereRaw('LOWER(availability) = ?', [strtolower($availability)]);
@@ -187,7 +231,11 @@ public function getAvailability(Request $request)
     }
 
 
+
+
     $dorms = $dormsQuery->paginate(10);
+
+
 
 
     return response()->json([
@@ -196,7 +244,9 @@ public function getAvailability(Request $request)
     ]);
 }
 
-    
+
+   
+
 
     protected function normalize($text)
     {
@@ -204,7 +254,11 @@ public function getAvailability(Request $request)
     }
 
 
-  
+
+
+ 
+
+
 
 
    public function searchLocations(Request $request)
@@ -216,8 +270,12 @@ public function getAvailability(Request $request)
         ]);
 
 
+
+
         $keyword = strtolower(trim($validated['location']));
         $keywordNormalized = $this->normalize($keyword);
+
+
 
 
         // Base query
@@ -228,26 +286,36 @@ public function getAvailability(Request $request)
             ->whereNotNull('d.longitude');
 
 
+
+
         // Paginate before filtering
         $dormsPaginated = $query->paginate(10);
+
+
 
 
         // Apply Collection filtering to handle normalization & synonyms
         $filteredCollection = $dormsPaginated->getCollection()->filter(function ($dorm) use ($keywordNormalized) {
             $addressNormalized = preg_replace('/[^a-z0-9]+/', '', strtolower($dorm->address));
-            return strpos($addressNormalized, $keywordNormalized) !== false 
+            return strpos($addressNormalized, $keywordNormalized) !== false
                   ;
         });
+
+
 
 
         // Replace the collection in the paginator so pagination metadata remains
         $dormsPaginated->setCollection($filteredCollection->values());
 
 
+
+
         return response()->json([
             'status' => 'success',
             'recommendations' => $dormsPaginated,
         ]);
+
+
 
 
     } catch (\Exception $e) {
@@ -265,8 +333,12 @@ public function getAvailability(Request $request)
         $maxPrice = floatval($request->input('max_price', 999999));
 
 
+
+
         $adjustedMin = $minPrice * 0.8;
         $adjustedMax = $maxPrice * 1.2;
+
+
 
 
         // Use Eloquent with relationships
@@ -294,10 +366,14 @@ public function getAvailability(Request $request)
             });
 
 
+
+
         return response()->json([
             'status' => 'success',
             'data' => $results,
         ]);
+
+
 
 
     } catch (\Exception $e) {
@@ -309,6 +385,8 @@ public function getAvailability(Request $request)
 }
 
 
+
+
    public function genderRecommendations(Request $request)
 {
     try {
@@ -317,12 +395,18 @@ public function getAvailability(Request $request)
         ]);
 
 
+
+
         $inputType = strtolower(trim($validated['occupancy_type']));
+
+
 
 
         $query = DB::table('dorms as d')
             ->leftJoin('dormimages as i', 'i.fkdormID', '=', 'd.dormID')
             ->select('d.*', 'i.mainImage');
+
+
 
 
         // Filter sa query level para preserve pagination
@@ -337,13 +421,19 @@ public function getAvailability(Request $request)
         }
 
 
+
+
         $dorms = $query->paginate(10); // Pagination preserved
+
+
 
 
         return response()->json([
             'status' => 'success',
             'recommendations' => $dorms, // items + pagination metadata
         ]);
+
+
 
 
     } catch (\Exception $e) {
@@ -354,6 +444,8 @@ public function getAvailability(Request $request)
         ], 500);
     }
 }
+
+
 
 
     public function mostWatchedDorm($id)
@@ -369,9 +461,13 @@ public function getAvailability(Request $request)
     $query = dormModel::query();
 
 
+
+
     if (!empty($filters['location'])) {
         $query->where('address', 'like', '%' . $filters['location'] . '%');
     }
+
+
 
 
     // You can join rooms table and filter by room type or price
@@ -387,168 +483,190 @@ public function getAvailability(Request $request)
     }
 
 
+
+
     $dorms = $query->with('rooms')->get();
+
+
 
 
     return $dorms;
 }
 public function getQuestionRecommendations(Request $request)
 {
-    $question = $request->input('question');
+    $request->validate([
+        'question' => 'required|string|max:1000',
+    ]);
 
 
     try {
-        // Call Flask/OpenAI API
-//  $response = Http::post('http://127.0.0.1:5000/ask-ai/dormitories', [
-//             'question' => $question,
-//         ]);
-// Use your Render app URL here
-// $flaskApiUrl = "https://pythonai-rkae.onrender.com/ask-ai/dormitories";
+        $question = trim($request->input('question'));
 
 
-// Send POST request to Flask API
-$apiUrl = "https://pythonaideploy-production.up.railway.app/ask-ai/dormitories";
+        // Python AI API URL
+        $apiUrl = 'https://pythonaideploy-production.up.railway.app/ask-ai/dormitories';
 
 
-$response = Http::post($apiUrl, [
-    'question' => $question,
-]);
+        // Send JSON request to Python API
+        $response = Http::timeout(60)
+            ->acceptJson()
+            ->asJson()
+            ->post($apiUrl, [
+                'question' => $question,
+            ]);
 
 
-// Optional: handle errors
-if ($response->failed()) {
-    return [
-        'message' => 'Naa’y error sa pagkuha og AI recommendations.',
-        'result' => [],
-        'recommendations' => [],
-    ];
-}
+        if ($response->failed()) {
+            Log::error('DormDash AI API Error', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
 
 
-// Get JSON response
-$data = $response->json();
-
-
-       
+            return response()->json([
+                'message' => 'AI service is currently unavailable.',
+                'recommendations' => [],
+            ], 502);
+        }
 
 
         $data = $response->json() ?? [];
 
 
-        // Raw AI message
-        $aiRaw = $data['message'] ?? 'Walay tubag nakuha gikan sa AI';
+        $aiRaw = $data['message'] ?? 'Here are your dormitory recommendations.';
 
 
-        // Extract AI message text (remove JSON block if any)
-        $aiMessage = preg_replace('/```json.*```/s', '', $aiRaw);
-        $aiMessage = trim($aiMessage);
+        // Extract AI recommendations
+        $aiRecommendations = $data['recommendations'] ?? [];
 
 
-        // Extract AI JSON recommendations if present
-        preg_match('/```json(.*?)```/s', $aiRaw, $matches);
-        $aiRecommendations = [];
-        if (isset($matches[1])) {
-            $aiRecommendations = json_decode(trim($matches[1]), true) ?? [];
-        }
-
-
-        // Fallback if Flask didn't return JSON
         if (empty($aiRecommendations)) {
-            $aiRecommendations = $data['recommendations'] ?? [];
+            $aiRecommendations = $data['result'] ?? [];
         }
 
 
-        // Ensure each dorm has proper structure and rooms are included
-        $recommendations = array_map(function ($dorm) {
-            // Handle amenities safely
-            $amenities = '';
-            if (isset($dorm['amenities'])) {
-                if (is_array($dorm['amenities'])) {
-                    $amenities = implode(',', array_column($dorm['amenities'], 'aminityName'));
-                } elseif (is_string($dorm['amenities'])) {
-                    $amenities = $dorm['amenities'];
+        // Extract JSON from Markdown code blocks
+        if (empty($aiRecommendations)) {
+            if (preg_match('/```json\s*(.*?)\s*```/s', $aiRaw, $matches)) {
+                $decoded = json_decode(trim($matches[1]), true);
+
+
+                if (is_array($decoded)) {
+                    $aiRecommendations = $decoded;
                 }
             }
+        }
 
 
-            // Handle rooms safely
-            $rooms = [];
-            if (!empty($dorm['rooms']) && is_array($dorm['rooms'])) {
-                $rooms = array_map(function ($room) {
-                    $features = $room['features'] ?? [];
-                    if (is_string($features)) {
-                        $features = explode(',', $features);
+        // Normalize AI recommendations
+        $recommendations = [];
+
+
+        if (is_array($aiRecommendations)) {
+            foreach ($aiRecommendations as $dorm) {
+                if (!is_array($dorm)) {
+                    continue;
+                }
+
+
+                $rooms = [];
+
+
+                foreach (($dorm['rooms'] ?? []) as $room) {
+                    if (!is_array($room)) {
+                        continue;
                     }
-                    return [
-                        'roomNumber' => $room['roomNumber'] ?? null,
-                        'type' => $room['type'] ?? $room['roomType'] ?? "Standard",
-                        'price' => $room['price'] ?? null,
-                        'availability' => $room['availability'] ?? null,
+
+
+                    $features = $room['features'] ?? [];
+
+
+                    if (is_string($features)) {
+                        $features = array_filter(
+                            array_map('trim', explode(',', $features))
+                        );
+                    }
+
+
+                    $rooms[] = [
+                        'roomNumber' => $room['roomNumber'] ?? 'N/A',
+                        'type' => $room['type'] ?? $room['roomType'] ?? 'Standard',
+                        'price' => $room['price'] ?? 'Contact landlord',
+                        'availability' => $room['availability'] ?? 'Unknown',
                         'features' => $features,
                     ];
-                }, $dorm['rooms']);
-            }
-
-
-            return [
-                'dormID' => $dorm['dormID'] ?? null,
-                'dormName' => $dorm['dormName'] ?? 'Unnamed Dorm',
-                'address' => $dorm['address'] ?? 'No address provided',
-                'occupancyType' => $dorm['occupancyType'] ?? 'Mixed',
-                'price' => $dorm['price'] ?? 'Contact landlord',
-                'dormimages' => [
-                    'mainImage' => $dorm['dormimages']['mainImage'] ?? $dorm['mainImage'] ?? null,
-                    'secondaryImage' => $dorm['dormimages']['secondaryImage'] ?? null,
-                    'thirdImage' => $dorm['dormimages']['thirdImage'] ?? null
-                ],
-                'amenities' => $amenities,
-                'rules' => $dorm['rules'] ?? [],
-                'rooms' => $rooms,
-                'fklandlordID' => $dorm['fklandlordID'] ?? null,
-                'landlord' => $dorm['landlord'] ?? [],
-            ];
-        }, $aiRecommendations);
-
-
-        // Fallback entirely to DB result if recommendations still empty
-        if (empty($recommendations) && isset($data['result']) && is_array($data['result'])) {
-            $recommendations = array_map(function($room) {
-                $features = $room['features'] ?? [];
-                if (is_string($features)) {
-                    $features = explode(',', $features);
                 }
 
 
-                return [
-                    'dormID' => $room['dormID'] ?? null,
-                    'dormName' => $room['dormName'] ?? 'Unnamed Dorm',
-                    'address' => $room['address'] ?? 'No address provided',
-                    'occupancyType' => $room['occupancyType'] ?? 'Mixed',
-                    'price' => $room['price'] ?? 'Contact landlord',
-                    'rooms' => [
-                        [
-                            'roomNumber' => $room['roomNumber'] ?? null,
-                            'type' => $room['type'] ?? $room['roomType'] ?? "Standard",
-                            'price' => $room['price'] ?? null,
-                            'availability' => $room['availability'] ?? null,
-                            'features' => $features,
-                        ]
-                    ],
-                    'fklandlordID' => $room['fklandlordID'] ?? null,
-                    'landlord' => $room['landlord'] ?? [],
+                $recommendations[] = [
+                    'dormID' => $dorm['dormID'] ?? null,
+                    'dormName' => $dorm['dormName'] ?? 'Unnamed Dorm',
+                    'address' => $dorm['address'] ?? 'No address provided',
+                    'occupancyType' => $dorm['occupancyType'] ?? 'Mixed',
+                    'rooms' => $rooms,
                 ];
-            }, $data['result']);
+            }
         }
+
+
+        // Fallback: Get actual Surigao City dormitories from database
+        if (empty($recommendations)) {
+            $dorms = dormModel::with(['rooms', 'images', 'amenities'])
+                ->where('address', 'LIKE', '%Surigao%')
+                ->get();
+
+
+            foreach ($dorms as $dorm) {
+                $rooms = [];
+
+
+                foreach ($dorm->rooms as $room) {
+                    $features = $room->features ?? [];
+
+
+                    if (is_string($features)) {
+                        $features = array_filter(
+                            array_map('trim', explode(',', $features))
+                        );
+                    }
+
+
+                    $rooms[] = [
+                        'roomNumber' => $room->roomNumber ?? 'N/A',
+                        'type' => $room->roomType ?? 'Standard',
+                        'price' => $room->price ?? 'Contact landlord',
+                        'availability' => $room->availability ?? 'Unknown',
+                        'features' => $features,
+                    ];
+                }
+
+
+                $recommendations[] = [
+                    'dormID' => $dorm->dormID,
+                    'dormName' => $dorm->dormName,
+                    'address' => $dorm->address,
+                    'occupancyType' => $dorm->occupancyType,
+                    'rooms' => $rooms,
+                ];
+            }
+        }
+
+
         return response()->json([
-            'message' => $aiMessage,
-            'dorms' => $data['result'] ?? [],
+            'message' => $aiRaw,
             'recommendations' => $recommendations,
         ]);
 
-    } catch (\Exception $e) {
+
+    } catch (\Throwable $e) {
+        Log::error('DormDash AI Recommendation Error', [
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString(),
+        ]);
+
+
         return response()->json([
             'message' => 'Naa’y error sa pagkuha og AI recommendations.',
-            'dorms' => [],
             'recommendations' => [],
         ], 500);
     }

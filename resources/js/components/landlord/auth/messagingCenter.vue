@@ -24,7 +24,7 @@
 
                 <!-- Conversation Items Scrollable List -->
                 <div
-                    class="flex-grow-1 overflow-y-auto p-2 custom-scrollbar"
+                    class="p-2 custom-scrollbar"
                     style="background-color: #f8f9fa"
                 >
                     <div
@@ -88,7 +88,7 @@
 
             <!-- Main Chat Area -->
             <div
-                class="col-12 col-md-8 col-lg-9 d-flex flex-column h-100 bg-white"
+                class="col-12 col-md-8 col-lg-9 d-flex flex-column h-100 bg-white overflow-hidden"
             >
                 <!-- Chat Header -->
                 <div
@@ -125,7 +125,7 @@
                 <!-- Messages Container -->
                 <div
                     ref="chatContainer"
-                    class="flex-grow-1 p-4 overflow-y-auto bg-light custom-scrollbar chat-bg"
+                    class="p-4 bg-light custom-scrollbar chat-bg"
                 >
                     <div
                         v-if="!activeConversationID"
@@ -391,6 +391,84 @@ export default {
 </script>
 
 <style scoped>
+/* =====================================
+   MAIN LAYOUT - FIXED VIEWPORT
+===================================== */
+
+.container-fluid.vh-100 {
+    height: 100vh !important;
+    max-height: 100vh !important;
+    overflow: hidden !important;
+}
+
+.container-fluid.vh-100 > .row {
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+}
+
+/* SIDEBAR */
+.container-fluid.vh-100 > .row > .col-md-4 {
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+}
+
+/* MAIN CHAT */
+.container-fluid.vh-100 > .row > .col-md-8 {
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* =====================================
+   SIDEBAR HEADER
+===================================== */
+
+.container-fluid.vh-100 > .row > .col-md-4 > .border-bottom {
+    flex: 0 0 auto;
+}
+
+/* =====================================
+   CONVERSATION LIST - SCROLLABLE ONLY
+===================================== */
+
+.custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+}
+
+.container-fluid.vh-100 > .row > .col-md-4 > .custom-scrollbar {
+    flex: 1 1 0;
+    height: 0;
+    min-height: 0;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 7px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: #003c87;
+}
+
+/* =====================================
+   CONVERSATION CARDS
+===================================== */
+
 .text-primary-custom {
     color: #003c87;
 }
@@ -407,7 +485,6 @@ export default {
     min-width: 0;
 }
 
-/* Conversation Items Styling */
 .convo-card {
     background-color: #ffffff;
     color: #333333;
@@ -416,7 +493,6 @@ export default {
 
 .convo-card:hover {
     background-color: #f0f4f9;
-    transform: translateY(-1px);
 }
 
 .active-convo {
@@ -433,7 +509,55 @@ export default {
     font-weight: 600;
 }
 
-/* Badge & Buttons */
+/* =====================================
+   CHAT HEADER - FIXED
+===================================== */
+
+.container-fluid.vh-100 > .row > .col-md-8 > .border-bottom {
+    flex: 0 0 auto;
+}
+
+/* =====================================
+   CHAT MESSAGES - SCROLLABLE ONLY
+===================================== */
+
+.chat-bg {
+    background-image: radial-gradient(#dee2e6 0.75px, transparent 0.75px);
+    background-size: 20px 20px;
+}
+
+.container-fluid.vh-100 > .row > .col-md-8 > .chat-bg {
+    flex: 1 1 0;
+    height: 0;
+    min-height: 0;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    overscroll-behavior: contain;
+}
+
+/* MESSAGE BUBBLES */
+.message-bubble {
+    word-wrap: break-word;
+    overflow-wrap: anywhere;
+}
+
+.bubble-sent {
+    border-radius: 18px 18px 0 18px;
+}
+
+.bubble-received {
+    border-radius: 18px 18px 18px 0;
+}
+
+/* =====================================
+   INPUT FOOTER - FIXED AT BOTTOM
+===================================== */
+
+.container-fluid.vh-100 > .row > .col-md-8 > .border-top {
+    flex: 0 0 auto;
+}
+
+/* SEND BUTTON */
 .tenant-badge {
     background-color: #eef2f7;
     color: #003c87;
@@ -456,45 +580,23 @@ export default {
     opacity: 0.6;
 }
 
-/* Chat Message Bubbles */
-.message-bubble {
-    word-wrap: break-word;
-}
+/* =====================================
+   RESPONSIVE
+===================================== */
 
-.bubble-sent {
-    border-radius: 18px 18px 0px 18px;
-}
+@media (max-width: 767.98px) {
+    .container-fluid.vh-100 > .row > .col-12 {
+        min-height: 0;
+    }
 
-.bubble-received {
-    border-radius: 18px 18px 18px 0px;
-}
+    .container-fluid.vh-100 > .row > .col-md-4 {
+        height: 35%;
+        flex: 0 0 35%;
+    }
 
-.chat-bg {
-    background-image: radial-gradient(#dee2e6 0.75px, transparent 0.75px);
-    background-size: 20px 20px;
-}
-
-/* Modern Unified Scrollbar Styling */
-.custom-scrollbar {
-    scrollbar-width: thin;
-    scrollbar-color: #cbd5e1 transparent;
-}
-
-.custom-scrollbar::-webkit-scrollbar {
-    width: 6px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb {
-    background-color: #cbd5e1;
-    border-radius: 10px;
-    transition: background-color 0.2s;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background-color: #003c87;
+    .container-fluid.vh-100 > .row > .col-md-8 {
+        height: 65%;
+        flex: 0 0 65%;
+    }
 }
 </style>

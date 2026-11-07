@@ -9,7 +9,7 @@
                     <h5 class="fw-bold text-white mb-0">Inbox</h5>
                 </div>
                 <div
-                    class="list-group list-group-flush overflow-auto flex-grow-1 p-2 custom-inbox-scroll"
+                    class="list-group list-group-flush p-2 custom-inbox-scroll"
                 >
                     <a
                         v-for="convo in conversations"
@@ -52,7 +52,9 @@
             </div>
 
             <!-- Chat Main Window -->
-            <div class="col-md-9 d-flex flex-column p-0 chat-bg-pattern">
+            <div
+                class="col-md-9 d-flex flex-column p-0 chat-bg-pattern overflow-hidden"
+            >
                 <!-- Chat Header -->
                 <div
                     class="d-flex align-items-center bg-white shadow-sm p-3 border-bottom border-primary-subtle"
@@ -86,7 +88,7 @@
                 <!-- Messages Container -->
                 <div
                     ref="chatContainer"
-                    class="p-4 flex-grow-1 overflow-auto d-flex flex-column gap-3 custom-chat-scroll"
+                    class="p-4 d-flex flex-column gap-3 custom-chat-scroll"
                 >
                     <div
                         v-for="msg in messages"

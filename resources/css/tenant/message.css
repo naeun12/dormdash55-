@@ -1,30 +1,87 @@
-/* Sidebar Header - Solid Blue */
-.sidebar-header {
-    background-color: #003C87;
+.chat-wrapper {
+    height: 100vh !important;
+    max-height: 100vh !important;
+    overflow: hidden !important;
 }
 
-/* Sidebar Conversation Items */
+
+.chat-wrapper>.row {
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+}
+
+
+/* SIDEBAR */
+.chat-wrapper .col-md-3 {
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+}
+
+
+/* SIDEBAR HEADER */
+.sidebar-header {
+    background-color: #003C87;
+    flex-shrink: 0;
+}
+
+
+/* INBOX SCROLL */
+.custom-inbox-scroll {
+    flex: 1 1 0;
+    min-height: 0;
+    height: 0;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    scrollbar-width: thin;
+    scrollbar-color: #003C87 #e9ecef;
+}
+
+
+.custom-inbox-scroll::-webkit-scrollbar {
+    width: 10px;
+}
+
+
+.custom-inbox-scroll::-webkit-scrollbar-track {
+    background: #e9ecef;
+}
+
+
+.custom-inbox-scroll::-webkit-scrollbar-thumb {
+    background: #003C87;
+    border-radius: 10px;
+}
+
+
+/* CONVERSATION ITEMS */
 .convo-item {
     border: none !important;
     transition: 0.2s;
 }
 
+
 .convo-item:hover {
     background-color: #f0f4f8 !important;
 }
+
 
 .active-convo {
     background-color: #003C87 !important;
     color: white !important;
 }
 
+
 .active-convo .name-label {
     color: white;
 }
 
+
 .active-convo .last-msg-text {
     color: rgba(255, 255, 255, 0.8);
 }
+
 
 .profile-pic {
     width: 48px;
@@ -33,7 +90,8 @@
     border-color: #003C87 !important;
 }
 
-/* Orange Notification Dot */
+
+/* NOTIFICATION DOT */
 .orange-dot {
     position: absolute;
     top: 0;
@@ -45,24 +103,76 @@
     border-radius: 50%;
 }
 
-/* Chat Background */
+
+/* CHAT MAIN WINDOW */
+.chat-wrapper .col-md-9 {
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+}
+
+
+/* CHAT BACKGROUND */
 .chat-bg-pattern {
     background-color: #f8f9fa;
 }
 
-/* Message Bubbles */
+
+/* CHAT HEADER */
+.chat-wrapper .col-md-9>.d-flex:first-child {
+    flex-shrink: 0;
+}
+
+
+/* MESSAGE AREA - ONLY THIS SCROLLS */
+.custom-chat-scroll {
+    flex: 1 1 0;
+    min-height: 0;
+    height: 0;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    scrollbar-width: thin;
+    scrollbar-color: #FC7D07 #e9ecef;
+}
+
+
+.custom-chat-scroll::-webkit-scrollbar {
+    width: 10px;
+}
+
+
+.custom-chat-scroll::-webkit-scrollbar-track {
+    background: #e9ecef;
+}
+
+
+.custom-chat-scroll::-webkit-scrollbar-thumb {
+    background: #FC7D07;
+    border-radius: 10px;
+}
+
+
+.custom-chat-scroll::-webkit-scrollbar-thumb:hover {
+    background: #003C87;
+}
+
+
+/* MESSAGE BUBBLES */
 .message-bubble {
     max-width: 60%;
     padding: 12px 16px;
     border-radius: 15px;
     font-size: 0.95rem;
+    overflow-wrap: anywhere;
 }
+
 
 .bubble-sent {
     background-color: #003C87;
     color: white;
     border-bottom-right-radius: 2px;
 }
+
 
 .bubble-received {
     background-color: #ffffff;
@@ -71,17 +181,26 @@
     border-bottom-left-radius: 2px;
 }
 
+
 .bubble-time {
     font-size: 0.7rem;
     margin-top: 4px;
     opacity: 0.8;
 }
 
-/* Input Area */
+
+/* INPUT FOOTER - ALWAYS FIXED */
+.chat-wrapper .col-md-9>.border-top {
+    flex-shrink: 0;
+}
+
+
+/* INPUT AREA */
 .custom-input-group {
     border-radius: 10px;
     overflow: hidden;
 }
+
 
 .btn-orange-send {
     background-color: #fd7e14;
@@ -90,60 +209,22 @@
     font-weight: bold;
 }
 
+
 .btn-orange-send:hover {
     background-color: #e86c00;
     color: white;
 }
 
-/* Responsive */
+
+/* RESPONSIVE */
 @media (max-width: 768px) {
     .message-bubble {
         max-width: 85%;
     }
-}
-/* FORCE VISIBLE CHAT SCROLLBAR */
-.custom-chat-scroll {
-    overflow-y: scroll !important;
-    overflow-x: hidden !important;
-    height: 100%;
-    min-height: 0;
-    scrollbar-width: auto !important;
-    scrollbar-color: #FC7D07 #e9ecef !important;
-}
 
-.custom-chat-scroll::-webkit-scrollbar {
-    display: block !important;
-    width: 12px !important;
-}
 
-.custom-chat-scroll::-webkit-scrollbar-track {
-    background: #e9ecef !important;
-}
-
-.custom-chat-scroll::-webkit-scrollbar-thumb {
-    background: #FC7D07 !important;
-    border-radius: 10px !important;
-    border: 2px solid #e9ecef !important;
-}
-
-.custom-chat-scroll::-webkit-scrollbar-thumb:hover {
-    background: #003C87 !important;
-}
-
-/* FORCE VISIBLE INBOX SCROLLBAR */
-.custom-inbox-scroll {
-    overflow-y: scroll !important;
-    overflow-x: hidden !important;
-    scrollbar-width: auto !important;
-    scrollbar-color: #003C87 #e9ecef !important;
-}
-
-.custom-inbox-scroll::-webkit-scrollbar {
-    display: block !important;
-    width: 12px !important;
-}
-
-.custom-inbox-scroll::-webkit-scrollbar-thumb {
-    background: #003C87 !important;
-    border-radius: 10px !important;
+    .chat-wrapper .col-md-3,
+    .chat-wrapper .col-md-9 {
+        height: 100%;
+    }
 }

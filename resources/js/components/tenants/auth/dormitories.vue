@@ -1,3 +1,4 @@
+.
 <template>
     <Loader ref="loader" />
     <NotificationList ref="toastRef" />
@@ -11,7 +12,9 @@
     </button>
 
     <!-- Slide-Out AI Assistant Panel -->
+
     <aside v-show="isOpen" class="floating-ai-panel">
+        <!-- AI Header -->
         <div
             class="ai-panel-header d-flex align-items-center justify-content-between"
         >
@@ -19,12 +22,14 @@
                 <i class="bi bi-robot fs-4"></i>
                 <h6 class="mb-0 fw-bold">Smart Assistant</h6>
             </div>
+
             <button
                 class="btn-close btn-close-white"
                 @click="isOpen = false"
             ></button>
         </div>
 
+        <!-- AI Question Input -->
         <div class="p-3 bg-light border-bottom">
             <div
                 class="input-group shadow-sm rounded-pill overflow-hidden bg-white border"
@@ -35,17 +40,29 @@
                     class="form-control border-0 px-3 shadow-none text-sm"
                     placeholder="Ask for recommendations..."
                     @keyup.enter="aiQuestion"
+                    :disabled="aiLoading"
                 />
+
                 <button
                     @click="aiQuestion"
                     class="btn btn-primary px-4 fw-semibold rounded-pill"
+                    :disabled="aiLoading || !question.trim()"
                 >
-                    Ask
+                    <span
+                        v-if="aiLoading"
+                        class="spinner-border spinner-border-sm me-1"
+                        role="status"
+                        aria-hidden="true"
+                    ></span>
+
+                    {{ aiLoading ? "Thinking..." : "Ask" }}
                 </button>
             </div>
         </div>
 
+        <!-- AI Scroll Content -->
         <div class="ai-scroll-content flex-grow-1 p-3">
+            <!-- AI Response -->
             <div
                 class="card border-0 bg-blue-soft text-dark mb-3 rounded-4 shadow-sm"
             >
@@ -53,8 +70,10 @@
                     <div
                         class="fw-bold text-dash-blue mb-1 small d-flex align-items-center gap-1"
                     >
-                        <i class="bi bi-chat-quote-fill"></i> Response
+                        <i class="bi bi-chat-quote-fill"></i>
+                        Response
                     </div>
+
                     <p
                         class="mb-0 text-muted small"
                         style="white-space: pre-wrap; line-height: 1.5"
@@ -67,34 +86,57 @@
                 </div>
             </div>
 
-            <!-- Suggested Items List -->
+            <!-- Suggested Properties Heading -->
             <h6
                 class="fw-bold mb-3 small text-muted text-uppercase tracking-wide"
             >
                 Suggested Properties
             </h6>
 
+            <!-- AI Loading -->
+            <div v-if="aiLoading" class="text-center py-4">
+                <div class="spinner-border text-primary mb-3" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+
+                <p class="fw-semibold text-dash-blue mb-1">
+                    AI is finding the best dormitories...
+                </p>
+
+                <small class="text-muted">
+                    Please wait while we process your request.
+                </small>
+            </div>
+
+            <!-- Suggested Properties List -->
             <div
-                v-if="dormReccomend.length > 0"
+                v-else-if="dormReccomend.length > 0"
                 class="d-flex flex-column gap-3"
             >
                 <div
                     v-for="(dorm, idx) in dormReccomend"
-                    :key="idx"
+                    :key="dorm.dormID || idx"
                     class="card border-0 shadow-sm rounded-4 overflow-hidden"
                 >
                     <div class="card-body p-3">
+                        <!-- Dorm Name -->
                         <h6 class="fw-bold mb-1 text-dash-blue">
                             {{ dorm.dormName }}
                         </h6>
+
+                        <!-- Occupancy Type -->
                         <p class="mb-1 text-muted x-small">
-                            <i class="bi bi-person me-1"></i
-                            >{{ dorm.occupancyType }}
-                        </p>
-                        <p class="mb-2 text-muted x-small">
-                            <i class="bi bi-geo-alt me-1"></i>{{ dorm.address }}
+                            <i class="bi bi-person me-1"></i>
+                            {{ dorm.occupancyType }}
                         </p>
 
+                        <!-- Address -->
+                        <p class="mb-2 text-muted x-small">
+                            <i class="bi bi-geo-alt me-1"></i>
+                            {{ dorm.address }}
+                        </p>
+
+                        <!-- Rooms -->
                         <div
                             v-if="dorm.rooms && dorm.rooms.length"
                             class="border-top pt-2 mt-2"
@@ -107,15 +149,23 @@
                                 <div
                                     class="d-flex justify-content-between align-items-center x-small"
                                 >
-                                    <span class="fw-medium text-dark"
-                                        >Room {{ room.roomNumber }} ({{
+                                    <span class="fw-medium text-dark">
+                                        Room {{ room.roomNumber }} ({{
                                             room.type
-                                        }})</span
-                                    >
-                                    <span class="fw-bold text-success"
-                                        >₱{{ room.price }}</span
-                                    >
+                                        }})
+                                    </span>
+
+                                    <span class="fw-bold text-success">
+                                        ₱{{ room.price }}
+                                    </span>
                                 </div>
+
+                                <!-- Availability -->
+                                <small class="text-muted">
+                                    {{ room.availability }}
+                                </small>
+
+                                <!-- Room Features -->
                                 <div
                                     v-if="room.features && room.features.length"
                                     class="d-flex flex-wrap gap-1 mt-1"
@@ -133,9 +183,11 @@
                             </div>
                         </div>
 
+                        <!-- View Property -->
                         <button
                             class="btn btn-outline-primary btn-sm w-100 rounded-pill mt-2 fw-semibold"
-                            @click="viewDormsDetails(dorm?.dormID)"
+                            @click="viewDormsDetails(dorm.dormID)"
+                            :disabled="!dorm.dormID"
                         >
                             View Property
                         </button>
@@ -143,6 +195,7 @@
                 </div>
             </div>
 
+            <!-- Empty State -->
             <p v-else class="text-muted small text-center my-4">
                 No suggested properties yet.
             </p>
@@ -305,7 +358,9 @@
                                     <select
                                         class="form-select custom-select shadow-none"
                                         v-model="selectedPriceRange"
-                                        @change="applyFilters"
+                                        @change="
+                                            drahJ91ZuNL8Y2px8iYciYeHN8sfSh5eXH8
+                                        "
                                     >
                                         <option value="all">All Prices</option>
                                         <option value="0-500">
@@ -334,7 +389,9 @@
                                     <select
                                         class="form-select custom-select shadow-none"
                                         v-model="selectedOccupancyType"
-                                        @change="applyFilters"
+                                        @change="
+                                            drahJ91ZuNL8Y2px8iYciYeHN8sfSh5eXH8
+                                        "
                                     >
                                         <option value="all">All Types</option>
                                         <option value="Male">Male Only</option>
@@ -358,7 +415,9 @@
                                     <select
                                         class="form-select custom-select shadow-none"
                                         v-model="selectedAmenity"
-                                        @change="applyFilters"
+                                        @change="
+                                            drahJ91ZuNL8Y2px8iYciYeHN8sfSh5eXH8
+                                        "
                                     >
                                         <option value="">Select Amenity</option>
                                         <option
@@ -382,7 +441,9 @@
                                     <select
                                         class="form-select custom-select shadow-none"
                                         v-model="selectedAvailability"
-                                        @change="applyFilters"
+                                        @change="
+                                            dropdownAvailabilityRecommendations
+                                        "
                                     >
                                         <option value="all">All Status</option>
                                         <option value="Available">
@@ -407,7 +468,9 @@
                                     <select
                                         class="form-select custom-select shadow-none"
                                         v-model="selectedRating"
-                                        @change="applyFilters"
+                                        @change="
+                                            drahJ91ZuNL8Y2px8iYciYeHN8sfSh5eXH8
+                                        "
                                     >
                                         <option value="all">Any Rating</option>
                                         <option value="5">
@@ -436,7 +499,7 @@
                                     <select
                                         class="form-select custom-select shadow-none"
                                         v-model="sortBy"
-                                        @change="applyFilters"
+                                        @change="sortDateDropDown"
                                     >
                                         <option value="new-old">
                                             Newest First
@@ -663,12 +726,11 @@ export default {
             notifications: [],
             receiverID: "",
             //new filters
-            lapulapu_dorms: [],
+            surigao_dorms: [],
             rooms: [],
             numberdorms: [],
             currentFilter: null, // e.g. 'all', 'city', 'price', etc.
             currentFilterParams: {},
-            mandaue_dorms: [],
             selectedAmenity: "",
             selectedRating: "",
             sortBy: "",
@@ -680,6 +742,7 @@ export default {
             amenitiesList: [],
             amenitieslength: false,
             boolrate: false,
+            aiLoading: false,
         };
     },
     methods: {
@@ -742,7 +805,7 @@ export default {
             this.$refs.loader.loading = false;
         },
 
-        async dropdownPriceRecommendations(page = 1) {
+        async drahJ91ZuNL8Y2px8iYciYeHN8sfSh5eXH8(page = 1) {
             this.selectedButtons = "";
             this.selectedAmenity = "";
             this.currentFilter = "price";
@@ -805,7 +868,7 @@ export default {
                     return [0, 999999]; // fallback
             }
         },
-        async dropdownGenderRecommdations(page = 1) {
+        async drahJ91ZuNL8Y2px8iYciYeHN8sfSh5eXH8(page = 1) {
             try {
                 this.$refs.loader.loading = true;
                 this.selectedButtons = "";
@@ -977,25 +1040,39 @@ export default {
             try {
                 this.selectedButtons = "All";
                 this.$refs.loader.loading = true;
+
                 const response = await axios.get("/list-dorms", {
-                    params: { page: page, per_page: this.itemsPerPage },
+                    params: {
+                        page: page,
+                        per_page: this.itemsPerPage,
+                    },
                 });
+
                 this.currentPage = response.data.dorms.current_page;
                 this.totalPages = response.data.dorms.last_page;
-                this.dormitories = response.data.dorms.data;
-                this.numberdorms = response.data.total_dorms;
-                this.lapulapu_dorms = response.data.lapulapu_dorms;
-                this.mandaue_dorms = response.data.mandaue_dorms;
+
+                this.dormitories = response.data.dorms.data || [];
+
+                this.numberdorms = response.data.total_dorms || 0;
+                this.surigao_dorms = response.data.surigao_dorms || 0;
+
                 this.rooms = [];
-                this.$refs.loader.loading = false;
+
+                console.log("Surigao Dormitories:", this.dormitories);
+                console.log("Total Dormitories:", this.numberdorms);
             } catch (error) {
-                console.error("Error fetching dorms:", error);
+                console.error(
+                    "Error fetching Surigao dorms:",
+                    error.response?.data || error.message,
+                );
+            } finally {
                 this.$refs.loader.loading = false;
             }
         },
+
         viewDormsDetails(dormitoryId) {
             this.tenant_id = window.tenant_id;
-            window.location.href = `/room-details/${dormitoryId}/${this.tenant_id}`;
+            window.location.href = `/room-details/dormitoryId/{this.tenant_id}`;
         },
 
         async goToPage(page) {
@@ -1010,10 +1087,10 @@ export default {
                     );
                     break;
                 case "price":
-                    await this.dropdownPriceRecommendations(page);
+                    await this.drahJ91ZuNL8Y2px8iYciYeHN8sfSh5eXH8(page);
                     break;
                 case "gender":
-                    await this.dropdownGenderRecommdations(page);
+                    await this.drahJ91ZuNL8Y2px8iYciYeHN8sfSh5eXH8(page);
                     break;
                 case "amenity":
                     await this.dropdownAmenities(page);
@@ -1094,52 +1171,66 @@ export default {
                 this.$refs.loader.loading = false;
             }
         },
-        async aiQuestion() {
-            try {
-                this.$refs.loader.loading = true;
 
-                // Send the user question to Laravel AI route
+        async aiQuestion() {
+            if (!this.question.trim() || this.aiLoading) return;
+
+            this.aiLoading = true;
+
+            const userQuestion = this.question.trim();
+
+            try {
                 const response = await axios.post(
-                    "ai/question/reccomendations",
-                    { question: this.question },
+                    "/ai/question/reccomendations",
+                    {
+                        question: userQuestion,
+                    },
                 );
 
-                // AI text response
                 this.chatresponse =
-                    response.data.message || "Walay tubag gikan sa AI";
+                    response.data.message ||
+                    "Here are your dormitory recommendations.";
 
-                // AI recommendations (dorms or rooms)
                 const recs = response.data.recommendations || [];
 
-                this.dormReccomend = (recs || []).map((d) => ({
-                    dormID: d.dormID || 0,
+                this.dormReccomend = recs.map((d) => ({
+                    dormID: d.dormID,
                     dormName: d.dormName || "Unnamed Dorm",
-                    address: d.address || "No address provided",
+                    address: d.address || "Surigao City",
                     occupancyType: d.occupancyType || "Mixed",
-                    amenities: d.amenities || "",
-                    rules: d.rules || [],
+
                     rooms: (d.rooms || []).map((r) => ({
                         roomNumber: r.roomNumber || "N/A",
                         type: r.type || r.roomType || "Standard",
-                        price: r.price || "Contact landlord",
+                        price: r.price ?? "Contact landlord",
                         availability: r.availability || "Unknown",
-                        features: r.features
-                            ? Array.isArray(r.features)
-                                ? r.features
-                                : r.features.split(",").map((f) => f.trim())
-                            : [],
+
+                        features: Array.isArray(r.features)
+                            ? r.features
+                            : typeof r.features === "string"
+                              ? r.features.split(",").map((f) => f.trim())
+                              : [],
                     })),
                 }));
 
                 console.log("AI Recommendations:", this.dormReccomend);
+
                 console.log("AI Response:", this.chatresponse);
+
+                this.question = "";
             } catch (error) {
-                console.error("Error sending AI question:", error);
+                console.error(
+                    "AI Recommendation Error:",
+                    error.response?.data || error.message,
+                );
+
                 this.chatresponse =
-                    "Naa’y error sa pagkuha og recommendations.";
+                    error.response?.data?.message ||
+                    "Unable to get AI recommendations. Please try again.";
+
                 this.dormReccomend = [];
             } finally {
-                this.$refs.loader.loading = false;
+                this.aiLoading = false;
             }
         },
 

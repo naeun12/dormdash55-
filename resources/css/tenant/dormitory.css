@@ -1,30 +1,35 @@
-/* Custom Palette Variables */
 :root {
     --primary-blue: #003C87;
     --primary-blue-hover: #002B66;
     --accent-orange: #FC7D07;
     --accent-orange-hover: #E56D00;
 
+
     --soft-blue: #E8F1FF;
     --text-dark: #2A2D34;
     --text-muted: #6C757D;
 
+
     --glass-bg: rgba(255, 255, 255, 0.85);
     --glass-border: rgba(0, 60, 135, 0.12);
 }
+
 
 /* Base Utility Classes */
 .text-dash-blue {
     color: var(--primary-blue) !important;
 }
 
+
 .text-dash-orange {
     color: var(--accent-orange) !important;
 }
 
+
 .bg-blue-soft {
     background-color: var(--soft-blue) !important;
 }
+
 
 /* Floating Recommendation Button */
 .floating-recommendation {
@@ -47,16 +52,19 @@
     transition: all 0.3s ease;
 }
 
+
 .floating-recommendation:hover {
     background: #FC7D07;
     transform: translateY(-4px) scale(1.05);
     box-shadow: 0 12px 30px rgba(252, 125, 7, 0.35);
 }
 
+
 .floating-recommendation.active {
     background: #FC7D07;
     transform: rotate(90deg);
 }
+
 
 /* Floating AI Panel */
 .floating-ai-panel {
@@ -77,11 +85,13 @@
     animation: slideInUp 0.3s ease;
 }
 
+
 @keyframes slideInUp {
     from {
         opacity: 0;
         transform: translateY(20px) scale(0.96);
     }
+
 
     to {
         opacity: 1;
@@ -89,14 +99,16 @@
     }
 }
 
+
 /* AI Panel Header */
 .ai-panel-header {
     background: linear-gradient(135deg,
-        rgba(0, 60, 135, 0.85) 0%,
-        rgba(252, 125, 7, 0.85) 100%);
+            rgba(0, 60, 135, 0.85) 0%,
+            rgba(252, 125, 7, 0.85) 100%);
     color: #ffffff;
     padding: 18px 24px;
 }
+
 
 /* Chat Scroll Area */
 .ai-scroll-content {
@@ -105,14 +117,17 @@
     scrollbar-color: #CBD5E1 transparent;
 }
 
+
 .ai-scroll-content::-webkit-scrollbar {
     width: 5px;
 }
+
 
 .ai-scroll-content::-webkit-scrollbar-thumb {
     background-color: #CBD5E1;
     border-radius: 10px;
 }
+
 
 /* Dorm Cards */
 .dorm-main-card {
@@ -120,22 +135,27 @@
     border: 1px solid rgba(0, 60, 135, 0.08) !important;
 }
 
+
 .dorm-main-card:hover {
     transform: translateY(-6px);
     box-shadow: 0 14px 28px rgba(0, 60, 135, 0.12) !important;
 }
 
+
 .card-img-wrap {
     overflow: hidden;
 }
+
 
 .card-img-wrap img {
     transition: transform 0.4s ease;
 }
 
+
 .dorm-main-card:hover .card-img-wrap img {
     transform: scale(1.04);
 }
+
 
 /* Glass Rating Badge */
 .glass-rating {
@@ -144,6 +164,7 @@
     backdrop-filter: blur(8px);
     border: 1px solid rgba(255, 255, 255, 0.25);
 }
+
 
 /* Filter Buttons */
 .btn-filter-pill {
@@ -157,6 +178,7 @@
     transition: all 0.2s ease;
 }
 
+
 .btn-filter-pill:hover,
 .btn-filter-pill.active {
     background-color: #003C87;
@@ -164,6 +186,7 @@
     border-color: #003C87;
     box-shadow: 0 4px 12px rgba(0, 60, 135, 0.2);
 }
+
 
 /* Custom Form Controls */
 .custom-floating .form-select,
@@ -174,11 +197,13 @@
     color: #002B66;
 }
 
+
 .custom-floating .form-select:focus,
 .custom-floating .form-control:focus {
     border-color: #003C87;
     box-shadow: 0 0 0 0.2rem rgba(0, 60, 135, 0.12);
 }
+
 
 /* Horizontal Scroll Container */
 .scroll-content {
@@ -188,9 +213,11 @@
     padding-bottom: 10px;
 }
 
+
 .scroll-content::-webkit-scrollbar {
     display: none;
 }
+
 
 .watched-dorm-card {
     min-width: 260px;
@@ -199,9 +226,11 @@
     transition: transform 0.2s ease;
 }
 
+
 .watched-dorm-card:hover {
     transform: translateY(-3px);
 }
+
 
 /* Mobile Responsive */
 @media (max-width: 576px) {
@@ -212,6 +241,7 @@
         right: 20px;
     }
 
+
     .floating-ai-panel {
         right: 15px;
         left: 15px;
@@ -221,23 +251,28 @@
         max-height: 75vh;
     }
 }
+
 .text-dash-blue {
     color: #003C87 !important;
 }
+
 
 .text-dash-orange {
     color: #FC7D07 !important;
 }
 
+
 .bg-blue-soft {
     background-color: rgba(0, 60, 135, 0.08);
 }
+
 
 /* Header Styling */
 .header-content h2 {
     color: #1a1a1a;
     letter-spacing: -0.5px;
 }
+
 
 .title-divider {
     height: 4px;
@@ -248,16 +283,19 @@
     background: linear-gradient(90deg, #003C87 0%, #FC7D07 100%);
 }
 
+
 .lead-sm {
     font-size: 1.05rem;
     font-weight: 400;
     opacity: 0.8;
 }
 
+
 /* Animation (Optional - needs animate.css) */
 .animate__fadeIn {
     animation: fadeIn 1s ease-in;
 }
+
 
 @keyframes fadeIn {
     from {
@@ -265,11 +303,13 @@
         transform: translateY(-10px);
     }
 
+
     to {
         opacity: 1;
         transform: translateY(0);
     }
 }
+
 
 /* Mobile Responsiveness */
 @media (max-width: 576px) {
@@ -277,14 +317,17 @@
         font-size: 1.75rem;
     }
 }
+
 /* Branding & Layout */
 .text-dash-blue {
     color: #003C87 !important;
 }
 
+
 .text-dash-orange {
     color: #FC7D07 !important;
 }
+
 
 .horizontal-scroll-wrapper {
     overflow-x: auto;
@@ -296,15 +339,18 @@
     border: 1px solid rgba(0, 0, 0, 0.03);
 }
 
+
 .horizontal-scroll-wrapper::-webkit-scrollbar {
     display: none;
     /* Hide scrollbar for Chrome/Safari */
 }
 
+
 .scroll-content {
     width: max-content;
     padding: 5px;
 }
+
 
 /* Card Styling */
 .watched-dorm-card {
@@ -315,16 +361,19 @@
     background: #fff;
 }
 
+
 .watched-dorm-card:hover {
     transform: translateY(-8px);
     box-shadow: 0 12px 25px rgba(0, 60, 135, 0.12) !important;
 }
+
 
 /* Image Wrap */
 .card-image-wrap {
     height: 180px;
     overflow: hidden;
 }
+
 
 .card-image-wrap img {
     width: 100%;
@@ -333,9 +382,11 @@
     transition: transform 0.5s ease;
 }
 
+
 .watched-dorm-card:hover .card-image-wrap img {
     transform: scale(1.1);
 }
+
 
 /* Badge Styling */
 .view-count-badge {
@@ -352,6 +403,7 @@
     border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
+
 /* Button */
 .btn-dash-blue-sm {
     background-color: #003C87;
@@ -363,21 +415,27 @@
     transition: 0.3s;
 }
 
+
 .btn-dash-blue-sm:hover {
     background-color: #002b61;
     transform: scale(1.02);
 }
 
+
 .x-small {
     font-size: 0.75rem;
-}/* Custom Colors */
+}
+
+/* Custom Colors */
 .bg-primary-soft {
     background-color: rgba(0, 60, 135, 0.08);
 }
 
+
 .border-primary-soft {
     border-color: rgba(0, 60, 135, 0.15) !important;
 }
+
 
 /* Filter Pills Styling */
 .btn-filter-pill {
@@ -390,11 +448,13 @@
     transition: all 0.3s ease;
 }
 
+
 .btn-filter-pill:hover {
     background: #f8faff;
     border-color: #003C87;
     color: #003C87;
 }
+
 
 .btn-filter-pill.active {
     background: #003C87;
@@ -402,6 +462,7 @@
     color: #fff;
     box-shadow: 0 4px 12px rgba(0, 60, 135, 0.2);
 }
+
 
 /* Floating Select Styling */
 .custom-floating {
@@ -411,12 +472,14 @@
     overflow: hidden;
 }
 
+
 .custom-floating select {
     padding-top: 1.625rem !important;
     padding-bottom: 0.625rem !important;
     font-size: 0.9rem;
     font-weight: 500;
 }
+
 
 .custom-floating label {
     font-size: 0.75rem;
@@ -426,28 +489,34 @@
     letter-spacing: 0.5px;
 }
 
+
 /* Responsive Grid Adjustments */
 @media (max-width: 576px) {
     .custom-floating label {
         font-size: 0.65rem;
     }
 
+
     .filter-grid-container {
         padding: 10px;
     }
 }
+
 /* Custom Dashboard Variables */
 .text-dash-blue {
     color: #003C87;
 }
 
+
 .bg-dash-blue {
     background-color: #003C87;
 }
 
+
 .text-dash-orange {
     color: #FC7D07;
 }
+
 
 /* Card Animations & Effects */
 .dorm-main-card {
@@ -455,10 +524,12 @@
     border: 1px solid rgba(0, 0, 0, 0.05) !important;
 }
 
+
 .dorm-main-card:hover {
     transform: translateY(-10px);
     box-shadow: 0 15px 30px rgba(0, 60, 135, 0.15) !important;
 }
+
 
 /* Glassmorphism Effect for Rating */
 .glass-rating {
@@ -466,6 +537,7 @@
     backdrop-filter: blur(8px);
     border: 1px solid rgba(255, 255, 255, 0.2);
 }
+
 
 /* Button Styling */
 .btn-dash-blue {
@@ -475,12 +547,14 @@
     transition: 0.3s;
 }
 
+
 .btn-dash-blue:hover {
     background-color: #FC7D07;
     /* Swaps to Orange on hover */
     color: white;
     transform: scale(1.02);
 }
+
 
 /* Pagination Adjustments */
 .p-pagination {
@@ -491,16 +565,19 @@
     justify-content: center;
 }
 
+
 .page-link:hover {
     background-color: #FC7D07;
     color: #003C87;
 }
+
 
 /* Helper Classes */
 .x-small {
     font-size: 0.65rem;
     letter-spacing: 0.5px;
 }
+
 /* Glassmorphism Container Wrapper */
 .filter-wrapper {
     background: rgba(255, 255, 255, 0.90);
@@ -510,14 +587,17 @@
     transition: box-shadow 0.3s ease;
 }
 
+
 .filter-wrapper:hover {
     box-shadow: 0 10px 30px rgba(0, 60, 135, 0.08) !important;
 }
+
 
 /* Custom Floating Labels & Controls */
 .custom-floating {
     position: relative;
 }
+
 
 .custom-floating .custom-select {
     background-color: #ffffff;
@@ -533,16 +613,19 @@
     cursor: pointer;
 }
 
+
 /* Focus and Hover State Styles */
 .custom-floating .custom-select:hover {
     border-color: #003C87;
     background-color: #E8F1FF;
 }
 
+
 .custom-floating .custom-select:focus {
     border-color: #003C87;
     box-shadow: 0 0 0 4px rgba(0, 60, 135, 0.15) !important;
 }
+
 
 /* Label Styling & Icon Coloring */
 .custom-floating>label {
@@ -555,11 +638,13 @@
     transition: all 0.2s ease-in-out;
 }
 
+
 .custom-floating>label i {
     color: #003C87;
     font-size: 0.9rem;
     transition: color 0.2s ease-in-out;
 }
+
 
 .custom-floating .custom-select:focus~label,
 .custom-floating .custom-select:not(:placeholder-shown)~label {
@@ -567,6 +652,28 @@
     font-weight: 600;
 }
 
+
 .custom-floating .custom-select:focus~label i {
     color: #FC7D07;
+}
+
+.ai-scroll-content {
+    overflow-y: auto;
+    min-height: 0;
+}
+
+
+.ai-scroll-content::-webkit-scrollbar {
+    width: 5px;
+}
+
+
+.ai-scroll-content::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+
+.ai-scroll-content::-webkit-scrollbar-track {
+    background: transparent;
 }

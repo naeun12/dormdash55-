@@ -238,8 +238,7 @@ Route::middleware([TenantAuth::class])->group(function () {
     Route::post('/book-room',[bookroomController::class,'bookingaRoom']);
 
     //homepage
-    Route::get('/tenant/dorms/lapu-lapu', [homepageController::class, 'dormLapuLapu']);
-    Route::get('/tenant/dorms/mandaue', [homepageController::class, 'dormMandaeu']);  
+     Route::get('/tenant/dorms/surigao', [homepageController::class, 'dormSurigao']); 
     Route::get('/api/top-rated-dorms', [homepageController::class, 'topRatedDorms']);  
    Route::get('gender-preference-dorms/{tenant_id}',[homepageController::class,'genderPreference']);
     Route::get('get/preferred-tenants',[homepageController::class,'getTenantPersonalized']);

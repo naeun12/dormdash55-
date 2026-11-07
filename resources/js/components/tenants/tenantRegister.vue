@@ -1468,14 +1468,10 @@ export default {
             }
         },
         togglePasswordVisibility() {
-            const passwordField = document.getElementById("password");
-            const confirmPasswordField =
-                document.getElementById("confirm_password");
-            const type =
-                passwordField.type === "password" ? "text" : "password";
-            passwordField.type = type;
-            confirmPasswordField.type = type;
+            this.passwordFieldType =
+                this.passwordFieldType === "password" ? "text" : "password";
         },
+
         triggerFileInput() {
             this.$refs.fileInput.click();
         },
