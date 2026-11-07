@@ -101,54 +101,49 @@
         max-width: 85%;
     }
 }
-/* Inbox Scrollbar */
-.custom-inbox-scroll {
-    overflow-y: auto;
-    overflow-x: hidden;
-    scrollbar-width: thin;
-    scrollbar-color: #FC7D07 #f8f9fa;
-}
-
-.custom-inbox-scroll::-webkit-scrollbar {
-    width: 6px;
-}
-
-.custom-inbox-scroll::-webkit-scrollbar-track {
-    background: #f8f9fa;
-    border-radius: 10px;
-}
-
-.custom-inbox-scroll::-webkit-scrollbar-thumb {
-    background: #FC7D07;
-    border-radius: 10px;
-}
-
-.custom-inbox-scroll::-webkit-scrollbar-thumb:hover {
-    background: #003C87;
-}
-
-/* Chat Messages Scrollbar */
+/* FORCE VISIBLE CHAT SCROLLBAR */
 .custom-chat-scroll {
-    overflow-y: auto !important;
-    overflow-x: hidden;
-    scrollbar-width: thin;
-    scrollbar-color: #FC7D07 #f8f9fa;
+    overflow-y: scroll !important;
+    overflow-x: hidden !important;
+    height: 100%;
+    min-height: 0;
+    scrollbar-width: auto !important;
+    scrollbar-color: #FC7D07 #e9ecef !important;
 }
 
 .custom-chat-scroll::-webkit-scrollbar {
-    width: 7px;
+    display: block !important;
+    width: 12px !important;
 }
 
 .custom-chat-scroll::-webkit-scrollbar-track {
-    background: #f8f9fa;
-    border-radius: 10px;
+    background: #e9ecef !important;
 }
 
 .custom-chat-scroll::-webkit-scrollbar-thumb {
-    background: #FC7D07;
-    border-radius: 10px;
+    background: #FC7D07 !important;
+    border-radius: 10px !important;
+    border: 2px solid #e9ecef !important;
 }
 
 .custom-chat-scroll::-webkit-scrollbar-thumb:hover {
-    background: #003C87;
+    background: #003C87 !important;
+}
+
+/* FORCE VISIBLE INBOX SCROLLBAR */
+.custom-inbox-scroll {
+    overflow-y: scroll !important;
+    overflow-x: hidden !important;
+    scrollbar-width: auto !important;
+    scrollbar-color: #003C87 #e9ecef !important;
+}
+
+.custom-inbox-scroll::-webkit-scrollbar {
+    display: block !important;
+    width: 12px !important;
+}
+
+.custom-inbox-scroll::-webkit-scrollbar-thumb {
+    background: #003C87 !important;
+    border-radius: 10px !important;
 }
