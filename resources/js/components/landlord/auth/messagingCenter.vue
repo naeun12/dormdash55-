@@ -4,7 +4,7 @@
     <div
         class="container-fluid vh-100 d-flex flex-column bg-light p-0 overflow-hidden"
     >
-        <div class="row g-0 flex-grow-1 overflow-hidden">
+        <div class="flex-grow-1 overflow-auto p-2 inbox-scroll">
             <div
                 class="col-md-3 bg-white border-end d-flex flex-column shadow-sm"
             >
