@@ -1220,35 +1220,46 @@ export default {
             }
         },
         async sendToAI() {
-            this.$refs.loader.loading = true;
-
-            if (this.aiQuestion.trim() === "") {
-                this.$refs.loader.loading = false;
-
+            if (!this.aiQuestion || !this.aiQuestion.trim()) {
                 this.aiResponse =
                     "⚠️ Please enter a question before asking AI.";
-            } else {
-                try {
-                    const formdata = new FormData();
-                    formdata.append("question", this.aiQuestion);
-                    formdata.append("dormID", this.dormitory_id);
+                return;
+            }
 
-                    const res = await axios.post("/send/ai", formdata);
+            this.$refs.loader.loading = true;
 
-                    if (res.data.success) {
-                        // ✅ 'success' instead of 'status'
-                        this.aiResponse = res.data.answer;
-                    } else {
-                        this.aiResponse =
-                            "⚠️ AI could not process your request.";
-                    }
-                } catch (error) {
-                    console.error(error);
+            try {
+                const formdata = new FormData();
+
+                formdata.append("question", this.aiQuestion.trim());
+                formdata.append("dormID", this.dormitory_id);
+
+                const res = await axios.post("/send/ai", formdata, {
+                    headers: {
+                        Accept: "application/json",
+                    },
+                });
+
+                if (res.data.success) {
+                    this.aiResponse = res.data.answer || "No answer received.";
+                } else {
                     this.aiResponse =
-                        "❌ Something went wrong while contacting AI.";
-                } finally {
-                    this.$refs.loader.loading = false;
+                        res.data.error ||
+                        res.data.message ||
+                        "⚠️ AI could not process your request.";
                 }
+            } catch (error) {
+                console.error(
+                    "AI REQUEST ERROR:",
+                    error.response?.data || error,
+                );
+
+                this.aiResponse =
+                    error.response?.data?.error ||
+                    error.response?.data?.message ||
+                    "❌ Something went wrong while contacting AI.";
+            } finally {
+                this.$refs.loader.loading = false;
             }
         },
     },
