@@ -178,7 +178,7 @@
                     <div class="card border-0 shadow-lg rounded-4 overflow-hidden small-dorm-card" style="height: 200px;">
                         <img src="{{ asset('images/landingpage/dorm4.jpg') }}" class="w-100 h-100 zoom-img" alt="Lapu Cozy" style="object-fit: cover;">
                         <div class="card-img-overlay d-flex flex-column justify-content-end bg-gradient-brand p-3">
-                            <h6 class="fw-bold text-white mb-0">Luna Dorm</h6>
+                            <h6 class="fw-bold text-white mb-0">Tuyog Hostel</h6>
                             <p class="x-small text-white opacity-75 mb-0">⭐ 4.7 • Libuac</p>
                         </div>
                     </div>
