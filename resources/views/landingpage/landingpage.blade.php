@@ -496,7 +496,7 @@
                         </h2>
                         <div id="collapse6" class="accordion-collapse collapse" data-bs-parent="#faqAccordionRight">
                             <div class="accordion-body bg-white text-muted">
-                                If you have more questions, reach out via our contact form or email us at <strong>support@dormdash.com</strong>.
+                                If you have more questions, reach out via our contact form or email us at <strong>kassandraolvis@gmail.com</strong>.
                             </div>
                         </div>
                     </div>
@@ -523,7 +523,7 @@
                     Connecting students with safe, affordable, and convenient living spaces in Surigao City. Your trusted platform for dormitory accommodations.
                 </p>
                 <div class="d-flex justify-content-center justify-content-md-start gap-3 mt-4">
-                    <a href="https://www.facebook.com/profile.php?id=61580194851438" class="social-icon" target="_blank">
+                    <a href="https://www.facebook.com/profile.php?id=61596147427337" class="social-icon" target="_blank">
                         <i class="fab fa-facebook-f fs-5"></i>
                     </a>
                     
@@ -547,8 +547,8 @@
                 </p>
                 <p class="mb-0">
                     <i class="bi bi-envelope-at-fill me-2"></i>
-                    <a href="mailto:support@dormdash.com" class="text-white text-decoration-none border-bottom border-secondary">
-                        support@dormdash.com
+                    <a href="mailto:kassandraolvis@gmail.com" class="text-white text-decoration-none border-bottom border-secondary">
+                        kassandraolvis@gmail.com
                     </a>
                 </p>
             </div>
