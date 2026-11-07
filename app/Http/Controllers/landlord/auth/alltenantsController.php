@@ -1,7 +1,8 @@
 <?php
 
 namespace App\Http\Controllers\landlord\auth;
-
+use App\Services\IprogSMSService;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\landlord\landlordModel;
@@ -109,6 +110,7 @@ public function ViewTenant($id)
 public function updateTenantInformation(Request $request, $id)
 {
     $landlordId = session('landlord_id');
+
     if (!$landlordId) {
         return response()->json([
             'status' => 'error',
@@ -116,29 +118,29 @@ public function updateTenantInformation(Request $request, $id)
         ], 403);
     }
 
-    $tenant = approvetenantsModel::find($id);
-    if (!$tenant || $tenant->room->fklandlordID !== $landlordId) {
+    $tenant = approvetenantsModel::with('room.dorm')->find($id);
+
+    if (!$tenant || !$tenant->room || $tenant->room->fklandlordID !== $landlordId) {
         return response()->json([
             'status' => 'error',
             'message' => 'Tenant not found or unauthorized access.'
         ], 404);
     }
-$validator = Validator::make($request->all(), [
-    'firstname'     => ['required', 'string', 'max:255', 'regex:/^[A-Za-z]+$/'],
-    'lastname'      => ['required', 'string', 'max:255', 'regex:/^[A-Za-z]+$/'],
-    'gender'        => 'required|in:Male,Female,Other',
-    'age'           => 'required|integer|min:15|max:120', // ✅ Minimum age 15
-    'contactEmail'  => 'required|email|max:255', // ✅ Valid email
-    'contactNumber' => 'required|digits_between:10,15', // ✅ Digits only
-    'status'        => 'required|string|max:50'
-], [
-    'firstname.regex' => 'The first name may only contain letters.',
-    'lastname.regex'  => 'The last name may only contain letters.',
-    'age.min'         => 'The tenant must be at least 15 years old.',
-    'contactNumber.digits_between' => 'The contact number must be between 10 and 15 digits and contain numbers only.'
-]);
 
-
+    $validator = Validator::make($request->all(), [
+        'firstname'     => ['required', 'string', 'max:255', 'regex:/^[A-Za-z]+$/'],
+        'lastname'      => ['required', 'string', 'max:255', 'regex:/^[A-Za-z]+$/'],
+        'gender'        => 'required|in:Male,Female,Other',
+        'age'           => 'required|integer|min:15|max:120',
+        'contactEmail'  => 'required|email|max:255',
+        'contactNumber' => 'required|digits_between:10,15',
+        'status'        => 'required|string|max:50'
+    ], [
+        'firstname.regex' => 'The first name may only contain letters.',
+        'lastname.regex'  => 'The last name may only contain letters.',
+        'age.min' => 'The tenant must be at least 15 years old.',
+        'contactNumber.digits_between' => 'The contact number must be between 10 and 15 digits and contain numbers only.'
+    ]);
 
     if ($validator->fails()) {
         return response()->json([
@@ -147,106 +149,154 @@ $validator = Validator::make($request->all(), [
             'errors' => $validator->errors()
         ], 422);
     }
-        $tenant->firstname = $request->input('firstname');
-        $tenant->lastname = $request->input('lastname');
-        $tenant->gender = $request->input('gender');
-        $tenant->age = $request->input('age');
-        $tenant->contactEmail = $request->input('contactEmail');
-        $tenant->contactNumber = $request->input('contactNumber');
-       if ($request->filled('status') && $request->input('status') === 'active') {
-            $tenant->status = $request->input('status'); 
-             $notification = notificationModel::create([
+
+    $tenant->firstname = $request->input('firstname');
+    $tenant->lastname = $request->input('lastname');
+    $tenant->gender = $request->input('gender');
+    $tenant->age = $request->input('age');
+    $tenant->contactEmail = $request->input('contactEmail');
+    $tenant->contactNumber = $request->input('contactNumber');
+
+    $notification = null;
+
+    if ($request->input('status') === 'active') {
+
+        $tenant->status = 'active';
+
+        $notification = notificationModel::create([
             'senderID'     => $landlordId,
             'senderType'   => 'landlord',
             'receiverID'   => $tenant->fktenantID,
             'receiverType' => 'tenant',
             'title'        => 'Status Notification',
             'message'      => 'Hello ' . $tenant->firstname .
-                              ', your landlord is notifying you about your status update to ' . $request->input('status') . ' for room ' .
-                              $tenant->room->roomNumber . ' at ' . $tenant->room->dorm->dormName .
-                              '. Kindly check and confirm.',
+                ', your landlord is notifying you about your status update to ' .
+                $request->input('status') . ' for room ' .
+                $tenant->room->roomNumber . ' at ' .
+                $tenant->room->dorm->dormName .
+                '. Kindly check and confirm.',
             'isRead'       => false,
         ]);
-       
 
-        // 5. Fire event for broadcasting (real-time notif)
-        }
-         else if ($request->input('status') === 'transferring')
-        {
-            $tenant->status = $request->input('status');
-            $notification = notificationModel::create([
-                'senderID'     => $landlordId,
-                'senderType'   => 'landlord',
-                'receiverID'   => $tenant->fktenantID,
-                'receiverType' => 'tenant',
-                'title'        => 'Status Notification',
-                'message'      => 'Hello ' . $tenant->firstname .
-                                  ', your landlord is notifying you about your status update to ' . $request->input('status') . ' for room ' .
-                                  $tenant->room->roomNumber . ' at ' . $tenant->room->dorm->dormName .
-                                  '. Kindly check and confirm.',
-                'isRead'       => false,
-            ]);
-        }
-          else if ($request->input('status') === 'pending_moveout')
-        {
-            $tenant->status = $request->input('status');
-            $notification = notificationModel::create([
-                'senderID'     => $landlordId,
-                'senderType'   => 'landlord',
-                'receiverID'   => $tenant->fktenantID,
-                'receiverType' => 'tenant',
-                'title'        => 'Status Notification',
-                'message'      => 'Hello ' . $tenant->firstname .
-                                  ', your landlord is notifying you about your status update to ' . $request->input('status') . ' for room ' .
-                                  $tenant->room->roomNumber . ' at ' . $tenant->room->dorm->dormName .
-                                  '. Kindly check and confirm.',
-                'isRead'       => false,
-            ]);
-        }
-         else if ($request->input('status') === 'moved_out')
-        {
-            $tenant->status = $request->input('status');
-            if ($tenant->source_type === 'Reservation') {
-            // Count tenants sa same room nga active/occupied pa
+    } else if ($request->input('status') === 'transferring') {
+
+        $tenant->status = 'transferring';
+
+        $notification = notificationModel::create([
+            'senderID'     => $landlordId,
+            'senderType'   => 'landlord',
+            'receiverID'   => $tenant->fktenantID,
+            'receiverType' => 'tenant',
+            'title'        => 'Status Notification',
+            'message'      => 'Hello ' . $tenant->firstname .
+                ', your landlord is notifying you about your status update to ' .
+                $request->input('status') . ' for room ' .
+                $tenant->room->roomNumber . ' at ' .
+                $tenant->room->dorm->dormName .
+                '. Kindly check and confirm.',
+            'isRead'       => false,
+        ]);
+
+    } else if ($request->input('status') === 'pending_moveout') {
+
+        $tenant->status = 'pending_moveout';
+
+        $notification = notificationModel::create([
+            'senderID'     => $landlordId,
+            'senderType'   => 'landlord',
+            'receiverID'   => $tenant->fktenantID,
+            'receiverType' => 'tenant',
+            'title'        => 'Status Notification',
+            'message'      => 'Hello ' . $tenant->firstname .
+                ', your landlord is notifying you about your status update to ' .
+                $request->input('status') . ' for room ' .
+                $tenant->room->roomNumber . ' at ' .
+                $tenant->room->dorm->dormName .
+                '. Kindly check and confirm.',
+            'isRead'       => false,
+        ]);
+
+    } else if ($request->input('status') === 'moved_out') {
+
+        $tenant->status = 'moved_out';
+
+        if ($tenant->source_type === 'Reservation') {
+
+            // Count other tenants in the same room
             $otherTenants = approvetenantsModel::where('fkroomID', $tenant->fkroomID)
-                ->where('approvedID', '!=', $tenant->approvedID) // exclude current tenant
-                ->where('status', 'active') 
-                ->orWhere('status', 'pending')
+                ->where('approvedID', '!=', $tenant->approvedID)
+                ->whereIn('status', ['active', 'pending'])
                 ->count();
 
             if ($otherTenants === 0) {
                 $tenant->room->availability = 'Available';
             } else {
-                // Naay occupant gihapon -> dili i-available
                 $tenant->room->availability = 'Occupied';
             }
+
             $tenant->extension_payment_status = 'pending';
             $tenant->extension_decision = 'not_extending';
             $tenant->notifyRent = 0;
             $tenant->moveOutDate = Carbon::now();
             $tenant->extensionDate = null;
-              $tenant->room->save();
-              $tenant->save();
 
+            $tenant->room->save();
         }
 
-            $notification = notificationModel::create([
-                'senderID'     => $landlordId,
-                'senderType'   => 'landlord',
-                'receiverID'   => $tenant->fktenantID,
-                'receiverType' => 'tenant',
-                'title'        => 'Status Notification',
-                'message'      => 'Hello ' . $tenant->firstname .
-                                  ', your landlord is notifying you about your status update to ' . $request->input('status') . ' for room ' .
-                                  $tenant->room->roomNumber . ' at ' . $tenant->room->dorm->dormName .
-                                  '. Kindly check and confirm.',
-                'isRead'       => false,
-            ]);
-        }
-            $tenant->save();
+        $notification = notificationModel::create([
+            'senderID'     => $landlordId,
+            'senderType'   => 'landlord',
+            'receiverID'   => $tenant->fktenantID,
+            'receiverType' => 'tenant',
+            'title'        => 'Status Notification',
+            'message'      => 'Hello ' . $tenant->firstname .
+                ', your landlord is notifying you about your status update to ' .
+                $request->input('status') . ' for room ' .
+                $tenant->room->roomNumber . ' at ' .
+                $tenant->room->dorm->dormName .
+                '. Kindly check and confirm.',
+            'isRead'       => false,
+        ]);
+    }
+
+    $tenant->save();
+
+    // SEND IN-APP NOTIFICATION, SMS AND EMAIL
+    if ($notification) {
+
+        // Broadcast real-time notification
         broadcast(new \App\Events\NewNotificationEvent($notification));
 
+        $type = 'tenant';
+        $message = $notification->message;
 
+        // SEND EMAIL - Existing reminder template
+        try {
+            if (!empty($tenant->contactEmail)) {
+                Mail::to($tenant->contactEmail)->send(
+                    new TenantLandlordReminder(
+                        $tenant->firstname,
+                        $message,
+                        $type
+                    )
+                );
+            }
+        } catch (\Throwable $mailError) {
+            Log::error('Tenant status email failed: ' . $mailError->getMessage());
+        }
+
+        // SEND SMS
+        try {
+            if (!empty($tenant->contactNumber)) {
+                app(IprogSMSService::class)->sendSMS(
+                    $tenant->contactNumber,
+                    'DormDash: ' . $message
+                );
+            }
+        } catch (\Throwable $smsError) {
+            Log::error('iProG tenant status SMS failed: ' . $smsError->getMessage());
+        }
+    }
 
     return response()->json([
         'status' => 'success',
@@ -254,6 +304,7 @@ $validator = Validator::make($request->all(), [
         'tenant' => $tenant
     ]);
 }
+
 public function getDorms()
 {
     $landlordId = session('landlord_id');
@@ -411,6 +462,7 @@ public function filterByDorm(Request $request)
         'tenants' => $tenants
     ]);
 }
+
 public function notifyTenant(Request $request)
 {
     try {
@@ -421,7 +473,8 @@ public function notifyTenant(Request $request)
         ]);
 
         // 2. Find tenant with room + dorm
-        $tenant = approvetenantsModel::with('room.dorm')->findOrFail($request->approveID);
+        $tenant = approvetenantsModel::with('room.dorm')
+            ->findOrFail($request->approveID);
 
         // 3. Update notify flag
         $tenant->notifyRent = 1;
@@ -436,43 +489,68 @@ public function notifyTenant(Request $request)
             'receiverType' => 'tenant',
             'title'        => 'Extension Notification',
             'message'      => 'Hello ' . $tenant->firstname .
-                              ', your landlord is notifying you about your rental extension for room ' .
-                              $tenant->room->roomNumber . ' at ' . $tenant->room->dorm->dormName .
-                              '. Kindly check and confirm.',
+                ', your landlord is notifying you about your rental extension for room ' .
+                $tenant->room->roomNumber . ' at ' . $tenant->room->dorm->dormName .
+                '. Kindly check and confirm.',
             'isRead'       => false,
         ]);
 
-
         // 5. Fire event for broadcasting (real-time notif)
         broadcast(new \App\Events\NewNotificationEvent($notification));
-         $type = 'tenant';
-            $message = "Hi {$tenant->firstname} {$tenant->lastname}, 👋 This is a notification from your landlord regarding your stay at Room {$tenant->room->roomNumber} in {$tenant->room->dorm->dormName}. 📝 Your current booking has an extension request.";
+
+        $type = 'tenant';
+
+        $message = "Hi {$tenant->firstname} {$tenant->lastname}, 👋 This is a notification from your landlord regarding your stay at Room {$tenant->room->roomNumber} in {$tenant->room->dorm->dormName}. 📝 Your current booking has an extension request.";
 
         $message .= "\n\nExtension Details:";
         $message .= "\n- Move-out Date: {$tenant->moveOutDate}";
         $message .= "\n\nPlease contact your landlord if you have any questions or concerns. Thank you!";
 
-        if ($message) {
-            Mail::to($tenant->contactEmail)->send(
-                new TenantLandlordReminder($tenant->firstname, $message, $type)
-            );
+        // 6. SEND EMAIL - Existing email template preserved
+        try {
+            if (!empty($tenant->contactEmail)) {
+                Mail::to($tenant->contactEmail)->send(
+                    new TenantLandlordReminder(
+                        $tenant->firstname,
+                        $message,
+                        $type
+                    )
+                );
+            }
+        } catch (\Throwable $mailError) {
+            Log::error('Tenant extension email failed: ' . $mailError->getMessage());
         }
 
+        // 7. SEND SMS
+        try {
+            if (!empty($tenant->contactNumber)) {
+                app(IprogSMSService::class)->sendSMS(
+                    $tenant->contactNumber,
+                    'DormDash: ' . $message
+                );
+            }
+        } catch (\Throwable $smsError) {
+            Log::error('iProG extension SMS failed: ' . $smsError->getMessage());
+        }
 
-        // 6. Return success response
+        // 8. Return success response
         return response()->json([
             'status'  => 'success',
             'message' => 'Notification sent to tenant successfully',
             'data'    => $notification
         ]);
+
     } catch (\Illuminate\Validation\ValidationException $e) {
+
         // Validation errors
         return response()->json([
             'status'  => 'error',
             'message' => 'Validation failed',
             'errors'  => $e->errors()
         ], 422);
+
     } catch (\Exception $e) {
+
         // Any other errors
         return response()->json([
             'status'  => 'error',
@@ -481,6 +559,7 @@ public function notifyTenant(Request $request)
         ], 500);
     }
 }
+
 public function addMoveInTenant()
 {
     $landlordId = session('landlord_id');
@@ -538,9 +617,11 @@ public function searchMoveInTenant(Request $request)
         'tenants' => $tenants
     ]);
 }
+
 public function moveInTenant(Request $request)
 {
     $landlordId = session('landlord_id');
+
     $request->validate([
         'approvedID' => 'required|integer',
     ]);
@@ -549,7 +630,9 @@ public function moveInTenant(Request $request)
         $approvedID = $request->input('approvedID');
 
         // Find the tenant record
-        $tenant = approvetenantsModel::with('room.dorm','room.landlord')->findOrFail($approvedID);
+        $tenant = approvetenantsModel::with('room.dorm', 'room.landlord')
+            ->findOrFail($approvedID);
+
         // Check if the room already has an active tenant
         $hasActiveTenant = approvetenantsModel::where('fkroomID', $tenant->fkroomID)
             ->where('status', 'active')
@@ -563,7 +646,7 @@ public function moveInTenant(Request $request)
         }
 
         // Activate tenant since no other active tenant exists
-            $tenant->status = 'active';
+        $tenant->status = 'active';
 
         if ($tenant->room) {
             $tenant->room->availability = 'Occupied';
@@ -580,17 +663,42 @@ public function moveInTenant(Request $request)
             'receiverType' => 'tenant',
             'title'        => 'Move IN Notification',
             'message'      => 'Hello ' . $tenant->firstname .
-                              ', your landlord is notifying you about your move-in for room ' .
-                              $tenant->room->roomNumber . ' at ' . $tenant->room->dorm->dormName .
-                              '. Kindly check and confirm.',
+                ', your landlord is notifying you about your move-in for room ' .
+                $tenant->room->roomNumber . ' at ' . $tenant->room->dorm->dormName .
+                '. Kindly check and confirm.',
             'isRead'       => false,
         ]);
+
         $type = 'tenant';
+
         $message = "Hi {$tenant->firstname} {$tenant->lastname}, 👋 Your booking for Room {$tenant->room->roomNumber} at {$tenant->room->dorm->dormName} is now active ✅. You can move in starting from {$tenant->moveInDate}. Enjoy your stay!";
-        if ($message) {
-            Mail::to($tenant->contactEmail)->send(new TenantLandlordReminder($tenant->firstname, $message, $type));
+
+        // SEND EMAIL - Existing email template preserved
+        try {
+            if (!empty($tenant->contactEmail)) {
+                Mail::to($tenant->contactEmail)->send(
+                    new TenantLandlordReminder(
+                        $tenant->firstname,
+                        $message,
+                        $type
+                    )
+                );
+            }
+        } catch (\Throwable $mailError) {
+            Log::error('Tenant move-in email failed: ' . $mailError->getMessage());
         }
 
+        // SEND SMS
+        try {
+            if (!empty($tenant->contactNumber)) {
+                app(IprogSMSService::class)->sendSMS(
+                    $tenant->contactNumber,
+                    'DormDash: ' . $message
+                );
+            }
+        } catch (\Throwable $smsError) {
+            Log::error('iProG move-in SMS failed: ' . $smsError->getMessage());
+        }
 
         // Fire event for broadcasting
         broadcast(new \App\Events\NewNotificationEvent($notification));
@@ -600,13 +708,17 @@ public function moveInTenant(Request $request)
             'message' => 'Tenant moved in successfully',
             'data'    => $tenant
         ]);
+
     } catch (\Illuminate\Validation\ValidationException $e) {
+
         return response()->json([
             'status'  => 'error',
             'message' => 'Validation failed',
             'errors'  => $e->errors()
         ], 422);
+
     } catch (\Exception $e) {
+
         return response()->json([
             'status'  => 'error',
             'message' => 'Something went wrong while moving in tenant',
@@ -614,6 +726,7 @@ public function moveInTenant(Request $request)
         ], 500);
     }
 }
+
 
 public function viewTenantPayment($id)
 {
@@ -649,9 +762,11 @@ public function viewTenantPayment($id)
         'tenant' => $tenant
     ]);
 }
+
 public function updateTenantExtension(Request $request, $id)
 {
     $landlordId = session('landlord_id');
+
     if (!$landlordId) {
         return response()->json([
             'status' => 'error',
@@ -667,7 +782,8 @@ public function updateTenantExtension(Request $request, $id)
         $extensionDate = $request->input('extensionDate');
 
         // Find the tenant
-        $tenant = approvetenantsModel::with('room.dorm','room.landlord','payments')->findOrFail($id);
+        $tenant = approvetenantsModel::with('room.dorm', 'room.landlord', 'payments')
+            ->findOrFail($id);
 
         // Check if the tenant belongs to the logged-in landlord
         if ($tenant->room->fklandlordID !== $landlordId) {
@@ -676,17 +792,24 @@ public function updateTenantExtension(Request $request, $id)
                 'message' => 'Unauthorized action. This tenant does not belong to you.'
             ], 403);
         }
+
         $extensionDate = Carbon::parse($request->extensionDate);
 
         // Update extension decision
         $tenant->extension_decision = 'pending';
-        $tenant->notifyRent = 0; 
-        $tenant->extensionDate = $extensionDate; 
+        $tenant->notifyRent = 0;
+        $tenant->extensionDate = $extensionDate;
         $tenant->moveOutDate = $extensionDate->copy()->addMonth();
         $tenant->paymentOption = 'onsite';
-        $tenant->extension_payment_status = 'done'; 
+        $tenant->extension_payment_status = 'done';
         $tenant->save();
-        $tenant->payments()->update(['fkapprovedID' => $id, 'status' => 'approved', 'paymentType' => 'onsite','amount' => $tenant->room->price]);
+
+        $tenant->payments()->update([
+            'fkapprovedID' => $id,
+            'status' => 'approved',
+            'paymentType' => 'onsite',
+            'amount' => $tenant->room->price
+        ]);
 
         // Create notification
         $notification = notificationModel::create([
@@ -696,28 +819,56 @@ public function updateTenantExtension(Request $request, $id)
             'receiverType' => 'tenant',
             'title'        => 'Rent Extension Approved',
             'message'      => 'Hello ' . $tenant->firstname .
-                              ', your landlord has approved your payment for room ' .
-                              $tenant->room->roomNumber . ' at ' . $tenant->room->dorm->dormName .
-                              '. Thank you for your prompt payment.',
+                ', your landlord has approved your payment for room ' .
+                $tenant->room->roomNumber . ' at ' . $tenant->room->dorm->dormName .
+                '. Thank you for your prompt payment.',
             'isRead'       => false,
         ]);
 
         // Fire event for broadcasting (real-time notif)
         broadcast(new \App\Events\NewNotificationEvent($notification));
 
+        // SEND SMS
+        try {
+            if (!empty($tenant->contactNumber)) {
+                app(IprogSMSService::class)->sendSMS(
+                    $tenant->contactNumber,
+                    'DormDash: ' . $notification->message
+                );
+            }
+        } catch (\Throwable $smsError) {
+            Log::error('iProG SMS failed: ' . $smsError->getMessage());
+        }
+
+        // SEND EMAIL
+        try {
+            if (!empty($tenant->email)) {
+                Mail::raw($notification->message, function ($message) use ($tenant) {
+                    $message->to($tenant->email)
+                        ->subject('Rent Extension Approved');
+                });
+            }
+        } catch (\Throwable $mailError) {
+            Log::error('Tenant email failed: ' . $mailError->getMessage());
+        }
+
         return response()->json([
             'status'  => 'success',
             'message' => 'Tenant payment approved successfully',
             'data'    => $tenant
         ]);
+
     } catch (\Illuminate\Validation\ValidationException $e) {
+
         // Validation errors
         return response()->json([
             'status'  => 'error',
             'message' => 'Validation failed',
             'errors'  => $e->errors()
         ], 422);
-    } catch(\Exception $e) {
+
+    } catch (\Exception $e) {
+
         // Any other errors
         return response()->json([
             'status'  => 'error',
@@ -726,9 +877,12 @@ public function updateTenantExtension(Request $request, $id)
         ], 500);
     }
 }
+
+
 public function updateTenantPaymentExtension(Request $request, $id)
 {
     $landlordId = session('landlord_id');
+
     if (!$landlordId) {
         return response()->json([
             'status' => 'error',
@@ -745,10 +899,9 @@ public function updateTenantPaymentExtension(Request $request, $id)
         $paymentID = $request->input('paymentID');
         $extensionDate = $request->input('extensionDate');
 
-        // Find the tenant
-        $tenant = approvetenantsModel::with('room.dorm','room.landlord','payments')->findOrFail($id);
+        $tenant = approvetenantsModel::with('room.dorm', 'room.landlord', 'payments')
+            ->findOrFail($id);
 
-        // Check if the tenant belongs to the logged-in landlord
         if ($tenant->room->fklandlordID !== $landlordId) {
             return response()->json([
                 'status' => 'error',
@@ -757,16 +910,18 @@ public function updateTenantPaymentExtension(Request $request, $id)
         }
 
         if ($status === 'approved') {
-            // Update extension decision
+
             $tenant->extension_decision = 'pending';
-            $tenant->notifyRent = 0; 
-            $tenant->extension_payment_status = 'done'; 
-            $tenant->extensionDate = Carbon::parse($extensionDate); 
+            $tenant->notifyRent = 0;
+            $tenant->extension_payment_status = 'done';
+            $tenant->extensionDate = Carbon::parse($extensionDate);
             $tenant->moveOutDate = Carbon::parse($extensionDate)->addMonth();
             $tenant->save();
-            $tenant->payments()->where('paymentID', $paymentID)->update(['status' => $status]);
 
-            // Create notification
+            $tenant->payments()
+                ->where('paymentID', $paymentID)
+                ->update(['status' => $status]);
+
             $notification = notificationModel::create([
                 'senderID'     => $landlordId,
                 'senderType'   => 'landlord',
@@ -774,32 +929,27 @@ public function updateTenantPaymentExtension(Request $request, $id)
                 'receiverType' => 'tenant',
                 'title'        => 'Rent Extension Approved',
                 'message'      => 'Hello ' . $tenant->firstname .
-                                  ', your landlord has approved your payment for room ' .
-                                  $tenant->room->roomNumber . ' at ' . $tenant->room->dorm->dormName .
-                                  '. Thank you for your prompt payment.',
+                    ', your landlord has approved your payment for room ' .
+                    $tenant->room->roomNumber . ' at ' . $tenant->room->dorm->dormName .
+                    '. Thank you for your prompt payment.',
                 'isRead'       => false,
             ]);
 
-            // Fire event for broadcasting (real-time notif)
             broadcast(new \App\Events\NewNotificationEvent($notification));
 
-            return response()->json([
-                'status'  => 'success',
-                'message' => 'Tenant payment approved successfully',
-                'data'    => $tenant
-            ]);
+            $emailSubject = 'Rent Extension Payment Approved';
+            $emailMessage = $notification->message;
+
         } else if ($status === 'rejected') {
-            // Update extension decision
-           $tenant->notifyRent = 0; 
-            $tenant->extension_payment_status = 'pending'; 
+
+            $tenant->notifyRent = 0;
+            $tenant->extension_payment_status = 'pending';
             $tenant->save();
 
-            // reject latest payment only
-            $tenant->payments()->where('paymentID', $paymentID)->update(['status' => 'rejected']);
+            $tenant->payments()
+                ->where('paymentID', $paymentID)
+                ->update(['status' => 'rejected']);
 
-
-
-            // Create notification
             $notification = notificationModel::create([
                 'senderID'     => $landlordId,
                 'senderType'   => 'landlord',
@@ -807,30 +957,61 @@ public function updateTenantPaymentExtension(Request $request, $id)
                 'receiverType' => 'tenant',
                 'title'        => 'Rent Extension Rejected',
                 'message'      => 'Hello ' . $tenant->firstname .
-                                  ', your landlord has rejected your payment for room ' .
-                                  $tenant->room->roomNumber . ' at ' . $tenant->room->dorm->dormName .
-                                  '. Please contact your landlord for more details.',
+                    ', your landlord has rejected your payment for room ' .
+                    $tenant->room->roomNumber . ' at ' . $tenant->room->dorm->dormName .
+                    '. Please contact your landlord for more details.',
                 'isRead'       => false,
             ]);
 
             // Fire event for broadcasting (real-time notif)
             broadcast(new \App\Events\NewNotificationEvent($notification));
 
-            return response()->json([
-                'status'  => 'success',
-                'message' => 'Tenant payment rejected successfully',
-                'data'    => $tenant
-            ]);
+            $emailSubject = 'Rent Extension Payment Rejected';
+            $emailMessage = $notification->message;
         }
+
+        // SEND SMS
+        try {
+            if (!empty($tenant->contactNumber)) {
+                app(IprogSMSService::class)->sendSMS(
+                    $tenant->contactNumber,
+                    'DormDash: ' . $notification->message
+                );
+            }
+        } catch (\Throwable $smsError) {
+            Log::error('iProG SMS failed: ' . $smsError->getMessage());
+        }
+
+        // SEND EMAIL
+        try {
+            if (!empty($tenant->email)) {
+                Mail::raw($emailMessage, function ($message) use ($tenant, $emailSubject) {
+                    $message->to($tenant->email)
+                        ->subject($emailSubject);
+                });
+            }
+        } catch (\Throwable $mailError) {
+            Log::error('Tenant email failed: ' . $mailError->getMessage());
+        }
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => $status === 'approved'
+                ? 'Tenant payment approved successfully'
+                : 'Tenant payment rejected successfully',
+            'data'    => $tenant
+        ]);
+
     } catch (\Illuminate\Validation\ValidationException $e) {
-        // Validation errors
+
         return response()->json([
             'status'  => 'error',
             'message' => 'Validation failed',
             'errors'  => $e->errors()
         ], 422);
-    } catch(\Exception $e) {
-        // Any other errors
+
+    } catch (\Exception $e) {
+
         return response()->json([
             'status'  => 'error',
             'message' => 'Something went wrong while approving tenant payment',
@@ -838,6 +1019,7 @@ public function updateTenantPaymentExtension(Request $request, $id)
         ], 500);
     }
 }
+
 public function softDelete(Request $request, $id)
 {
     $landlordId = session('landlord_id');

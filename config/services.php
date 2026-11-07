@@ -35,5 +35,10 @@ return [
     'token' => env('PHILSMS_API_TOKEN'),
     'sender_id' => env('PHILSMS_SENDER_ID'),
 ],
+'iprog' => [
+    'url' => env('IPROG_SMS_API_URL'),
+    'token' => env('IPROG_SMS_API_TOKEN'),
+    'sender_id' => env('IPROG_SMS_SENDER_ID'),
+],
 
 ];
