@@ -101,11 +101,12 @@
         max-width: 85%;
     }
 }
-
-/* Inbox scrollbar */
+/* Inbox Scrollbar */
 .custom-inbox-scroll {
+    overflow-y: auto;
+    overflow-x: hidden;
     scrollbar-width: thin;
-    scrollbar-color: #adb5bd #f8f9fa;
+    scrollbar-color: #FC7D07 #f8f9fa;
 }
 
 .custom-inbox-scroll::-webkit-scrollbar {
@@ -114,10 +115,11 @@
 
 .custom-inbox-scroll::-webkit-scrollbar-track {
     background: #f8f9fa;
+    border-radius: 10px;
 }
 
 .custom-inbox-scroll::-webkit-scrollbar-thumb {
-    background: #adb5bd;
+    background: #FC7D07;
     border-radius: 10px;
 }
 
@@ -125,22 +127,25 @@
     background: #003C87;
 }
 
-/* Chat messages scrollbar */
+/* Chat Messages Scrollbar */
 .custom-chat-scroll {
+    overflow-y: auto !important;
+    overflow-x: hidden;
     scrollbar-width: thin;
-    scrollbar-color: #adb5bd #f8f9fa;
+    scrollbar-color: #FC7D07 #f8f9fa;
 }
 
 .custom-chat-scroll::-webkit-scrollbar {
-    width: 6px;
+    width: 7px;
 }
 
 .custom-chat-scroll::-webkit-scrollbar-track {
     background: #f8f9fa;
+    border-radius: 10px;
 }
 
 .custom-chat-scroll::-webkit-scrollbar-thumb {
-    background: #adb5bd;
+    background: #FC7D07;
     border-radius: 10px;
 }
 
