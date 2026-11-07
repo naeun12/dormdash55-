@@ -557,7 +557,7 @@
         <hr class="my-5 opacity-25" style="background-color: #FFFFFF;">
 
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-center small opacity-75">
-            <p class="mb-0">&copy; 2025 <span class="fw-bold">DormDash</span>. Built for Students and Young Professional.</p>
+            <p class="mb-0">&copy; 2026 <span class="fw-bold">DormDash</span>. Built for Students and Young Professional.</p>
             <div class="d-flex gap-3 mt-3 mt-md-0">
                 <a href="#" class="text-white text-decoration-none">Privacy Policy</a>
                 <a href="#" class="text-white text-decoration-none">Terms of Service</a>
