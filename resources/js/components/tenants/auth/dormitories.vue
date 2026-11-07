@@ -19,92 +19,104 @@
             class="ai-panel-header d-flex align-items-center justify-content-between"
         >
             <div class="d-flex align-items-center gap-2">
-                <i class="bi bi-robot fs-4"></i>
-                <h6 class="mb-0 fw-bold">Smart Assistant</h6>
+                <div class="ai-header-icon">
+                    <i class="bi bi-robot"></i>
+                </div>
+
+                <div>
+                    <h6 class="mb-0 fw-bold">Smart Assistant</h6>
+                    <small class="ai-header-subtitle"
+                        >DormDash AI Recommendations</small
+                    >
+                </div>
             </div>
 
             <button
                 class="btn-close btn-close-white"
                 @click="isOpen = false"
+                aria-label="Close"
             ></button>
         </div>
 
         <!-- AI Question Input -->
-        <div class="p-3 bg-light border-bottom">
-            <div
-                class="input-group shadow-sm rounded-pill overflow-hidden bg-white border"
-            >
+        <div class="ai-input-container">
+            <div class="input-group ai-input-group">
                 <input
                     v-model="question"
                     type="text"
-                    class="form-control border-0 px-3 shadow-none text-sm"
-                    placeholder="Ask for recommendations..."
+                    class="form-control border-0 shadow-none"
+                    placeholder="Ask for dorm recommendations..."
                     @keyup.enter="aiQuestion"
                     :disabled="aiLoading"
                 />
 
                 <button
                     @click="aiQuestion"
-                    class="btn btn-primary px-4 fw-semibold rounded-pill"
+                    class="btn ai-ask-button"
                     :disabled="aiLoading || !question.trim()"
                 >
                     <span
                         v-if="aiLoading"
                         class="spinner-border spinner-border-sm me-1"
                         role="status"
-                        aria-hidden="true"
                     ></span>
+
+                    <i v-else class="bi bi-send-fill me-1"></i>
 
                     {{ aiLoading ? "Thinking..." : "Ask" }}
                 </button>
             </div>
+
+            <small class="text-muted d-block mt-2">
+                <i class="bi bi-lightbulb me-1"></i>
+                Ask about price, room type, location, or amenities.
+            </small>
         </div>
 
         <!-- AI Scroll Content -->
-        <div class="ai-scroll-content flex-grow-1 p-3">
+        <div class="ai-scroll-content">
             <!-- AI Response -->
-            <div
-                class="card border-0 bg-blue-soft text-dark mb-3 rounded-4 shadow-sm"
-            >
-                <div class="card-body p-3">
-                    <div
-                        class="fw-bold text-dash-blue mb-1 small d-flex align-items-center gap-1"
-                    >
-                        <i class="bi bi-chat-quote-fill"></i>
-                        Response
+            <div class="ai-response-card mb-4">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <div class="ai-response-icon">
+                        <i class="bi bi-chat-square-text-fill"></i>
                     </div>
 
-                    <p
-                        class="mb-0 text-muted small"
-                        style="white-space: pre-wrap; line-height: 1.5"
-                    >
-                        {{
-                            chatresponse ||
-                            "Hi! Tell me what price range, room type, or location you prefer."
-                        }}
-                    </p>
+                    <span class="fw-bold text-dash-blue small">
+                        AI Response
+                    </span>
                 </div>
+
+                <p class="mb-0 ai-response-text">
+                    {{
+                        chatresponse ||
+                        "Hi! Tell me what price range, room type, or location you prefer. I'll help you find suitable dormitories."
+                    }}
+                </p>
             </div>
 
             <!-- Suggested Properties Heading -->
-            <h6
-                class="fw-bold mb-3 small text-muted text-uppercase tracking-wide"
-            >
-                Suggested Properties
-            </h6>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="ai-section-title mb-0">Suggested Properties</h6>
+
+                <span v-if="dormReccomend.length > 0" class="ai-count-badge">
+                    {{ dormReccomend.length }}
+                    {{ dormReccomend.length === 1 ? "Property" : "Properties" }}
+                </span>
+            </div>
 
             <!-- AI Loading -->
-            <div v-if="aiLoading" class="text-center py-4">
+            <div v-if="aiLoading" class="ai-loading-container">
                 <div class="spinner-border text-primary mb-3" role="status">
                     <span class="visually-hidden">Loading...</span>
                 </div>
 
-                <p class="fw-semibold text-dash-blue mb-1">
-                    AI is finding the best dormitories...
+                <p class="fw-bold text-dash-blue mb-1">
+                    Finding the best dormitories...
                 </p>
 
                 <small class="text-muted">
-                    Please wait while we process your request.
+                    Please wait while our AI processes your request.
                 </small>
             </div>
 
@@ -116,79 +128,165 @@
                 <div
                     v-for="(dorm, idx) in dormReccomend"
                     :key="dorm.dormID || idx"
-                    class="card border-0 shadow-sm rounded-4 overflow-hidden"
+                    class="dorm-ai-card"
                 >
-                    <div class="card-body p-3">
+                    <div class="p-3">
                         <!-- Dorm Name -->
-                        <h6 class="fw-bold mb-1 text-dash-blue">
-                            {{ dorm.dormName }}
-                        </h6>
+                        <div
+                            class="d-flex justify-content-between align-items-start gap-2 mb-2"
+                        >
+                            <h6 class="dorm-ai-name mb-0">
+                                {{ dorm.dormName }}
+                            </h6>
 
-                        <!-- Occupancy Type -->
-                        <p class="mb-1 text-muted x-small">
-                            <i class="bi bi-person me-1"></i>
-                            {{ dorm.occupancyType }}
-                        </p>
+                            <span class="gender-badge">
+                                <i class="bi bi-people-fill me-1"></i>
+                                {{ dorm.occupancyType }}
+                            </span>
+                        </div>
 
                         <!-- Address -->
-                        <p class="mb-2 text-muted x-small">
-                            <i class="bi bi-geo-alt me-1"></i>
-                            {{ dorm.address }}
-                        </p>
+                        <div
+                            class="d-flex align-items-start gap-2 dorm-address"
+                        >
+                            <i class="bi bi-geo-alt-fill"></i>
+                            <span>{{ dorm.address }}</span>
+                        </div>
 
                         <!-- Rooms -->
                         <div
                             v-if="dorm.rooms && dorm.rooms.length"
-                            class="border-top pt-2 mt-2"
+                            class="rooms-section"
                         >
-                            <div
-                                v-for="(room, rIdx) in dorm.rooms"
-                                :key="rIdx"
-                                class="mb-2"
-                            >
+                            <div class="rooms-heading">
+                                <span>
+                                    <i class="bi bi-door-open me-1"></i>
+                                    Room Details
+                                </span>
+
+                                <span class="room-count">
+                                    {{ dorm.rooms.length }}
+                                    {{
+                                        dorm.rooms.length === 1
+                                            ? "Room"
+                                            : "Rooms"
+                                    }}
+                                </span>
+                            </div>
+
+                            <!-- Individual Room -->
+                            <div class="d-flex flex-column gap-2">
                                 <div
-                                    class="d-flex justify-content-between align-items-center x-small"
+                                    v-for="(room, rIdx) in dorm.rooms"
+                                    :key="room.roomID || rIdx"
+                                    class="room-ai-card"
                                 >
-                                    <span class="fw-medium text-dark">
-                                        Room {{ room.roomNumber }} ({{
-                                            room.type
-                                        }})
-                                    </span>
-
-                                    <span class="fw-bold text-success">
-                                        ₱{{ room.price }}
-                                    </span>
-                                </div>
-
-                                <!-- Availability -->
-                                <small class="text-muted">
-                                    {{ room.availability }}
-                                </small>
-
-                                <!-- Room Features -->
-                                <div
-                                    v-if="room.features && room.features.length"
-                                    class="d-flex flex-wrap gap-1 mt-1"
-                                >
-                                    <span
-                                        v-for="(
-                                            feature, index
-                                        ) in room.features"
-                                        :key="index"
-                                        class="badge bg-light text-secondary rounded-pill border x-small px-2 py-1"
+                                    <!-- Room Name and Availability -->
+                                    <div
+                                        class="d-flex justify-content-between align-items-start gap-2"
                                     >
-                                        {{ feature }}
-                                    </span>
+                                        <div class="room-info">
+                                            <div class="room-name">
+                                                Room {{ room.roomNumber }}
+                                            </div>
+
+                                            <small class="room-type">
+                                                {{ room.type }}
+                                            </small>
+                                        </div>
+
+                                        <span
+                                            class="room-status"
+                                            :class="
+                                                String(
+                                                    room.availability,
+                                                ).toLowerCase() === 'available'
+                                                    ? 'status-available'
+                                                    : 'status-occupied'
+                                            "
+                                        >
+                                            <i
+                                                class="bi me-1"
+                                                :class="
+                                                    String(
+                                                        room.availability,
+                                                    ).toLowerCase() ===
+                                                    'available'
+                                                        ? 'bi-check-circle-fill'
+                                                        : 'bi-x-circle-fill'
+                                                "
+                                            ></i>
+
+                                            {{ room.availability }}
+                                        </span>
+                                    </div>
+
+                                    <!-- Room Price -->
+                                    <div class="room-price-container">
+                                        <span class="room-price">
+                                            ₱{{
+                                                Number(
+                                                    room.price || 0,
+                                                ).toLocaleString("en-PH", {
+                                                    minimumFractionDigits: 2,
+                                                    maximumFractionDigits: 2,
+                                                })
+                                            }}
+                                        </span>
+
+                                        <small class="room-price-label">
+                                            / month
+                                        </small>
+                                    </div>
+
+                                    <!-- Room Features -->
+                                    <div
+                                        v-if="
+                                            room.features &&
+                                            room.features.length
+                                        "
+                                        class="room-features"
+                                    >
+                                        <span
+                                            v-for="(
+                                                feature, fIdx
+                                            ) in room.features"
+                                            :key="feature.id || fIdx"
+                                            class="room-feature-badge"
+                                        >
+                                            <i
+                                                class="bi bi-check2-circle me-1"
+                                            ></i>
+
+                                            {{
+                                                typeof feature === "object"
+                                                    ? feature.featureName
+                                                    : feature
+                                            }}
+                                        </span>
+                                    </div>
+
+                                    <div v-else class="no-features">
+                                        <i class="bi bi-info-circle me-1"></i>
+                                        No amenities listed.
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
+                        <!-- No Rooms -->
+                        <div v-else class="no-rooms-message">
+                            <i class="bi bi-info-circle me-1"></i>
+                            No room information available.
+                        </div>
+
                         <!-- View Property -->
                         <button
-                            class="btn btn-outline-primary btn-sm w-100 rounded-pill mt-2 fw-semibold"
+                            class="view-property-button"
                             @click="viewDormsDetails(dorm.dormID)"
                             :disabled="!dorm.dormID"
                         >
+                            <i class="bi bi-eye me-1"></i>
                             View Property
                         </button>
                     </div>
@@ -196,9 +294,18 @@
             </div>
 
             <!-- Empty State -->
-            <p v-else class="text-muted small text-center my-4">
-                No suggested properties yet.
-            </p>
+            <div v-else class="ai-empty-state">
+                <div class="ai-empty-icon">
+                    <i class="bi bi-building"></i>
+                </div>
+
+                <h6>No Suggested Properties</h6>
+
+                <p class="mb-0">
+                    Ask our Smart Assistant to find dormitories that match your
+                    preferences.
+                </p>
+            </div>
         </div>
     </aside>
 
