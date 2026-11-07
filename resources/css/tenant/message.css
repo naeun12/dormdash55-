@@ -1,8 +1,6 @@
-
 /* Sidebar Header - Solid Blue */
 .sidebar-header {
     background-color: #003C87;
-    /* Strong Blue */
 }
 
 /* Sidebar Conversation Items */
@@ -43,7 +41,6 @@
     width: 12px;
     height: 12px;
     background-color: #fd7e14;
-    /* Solid Orange */
     border: 2px solid white;
     border-radius: 50%;
 }
@@ -63,7 +60,6 @@
 
 .bubble-sent {
     background-color: #003C87;
-    /* Solid Blue */
     color: white;
     border-bottom-right-radius: 2px;
 }
@@ -89,7 +85,6 @@
 
 .btn-orange-send {
     background-color: #fd7e14;
-    /* Solid Orange */
     color: white;
     border: none;
     font-weight: bold;
@@ -106,49 +101,49 @@
         max-width: 85%;
     }
 }
+
 /* Inbox scrollbar */
-.list-group.overflow-auto {
+.custom-inbox-scroll {
     scrollbar-width: thin;
     scrollbar-color: #adb5bd #f8f9fa;
 }
 
-.list-group.overflow-auto::-webkit-scrollbar {
+.custom-inbox-scroll::-webkit-scrollbar {
     width: 6px;
 }
 
-.list-group.overflow-auto::-webkit-scrollbar-track {
+.custom-inbox-scroll::-webkit-scrollbar-track {
     background: #f8f9fa;
 }
 
-.list-group.overflow-auto::-webkit-scrollbar-thumb {
+.custom-inbox-scroll::-webkit-scrollbar-thumb {
     background: #adb5bd;
     border-radius: 10px;
 }
 
-.list-group.overflow-auto::-webkit-scrollbar-thumb:hover {
+.custom-inbox-scroll::-webkit-scrollbar-thumb:hover {
     background: #003C87;
 }
 
 /* Chat messages scrollbar */
-.chat-messages-scroll {
+.custom-chat-scroll {
     scrollbar-width: thin;
     scrollbar-color: #adb5bd #f8f9fa;
 }
 
-.chat-messages-scroll::-webkit-scrollbar {
+.custom-chat-scroll::-webkit-scrollbar {
     width: 6px;
 }
 
-.chat-messages-scroll::-webkit-scrollbar-track {
+.custom-chat-scroll::-webkit-scrollbar-track {
     background: #f8f9fa;
 }
 
-.chat-messages-scroll::-webkit-scrollbar-thumb {
+.custom-chat-scroll::-webkit-scrollbar-thumb {
     background: #adb5bd;
     border-radius: 10px;
 }
 
-.chat-messages-scroll::-webkit-scrollbar-thumb:hover {
+.custom-chat-scroll::-webkit-scrollbar-thumb:hover {
     background: #003C87;
 }
-
