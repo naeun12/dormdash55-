@@ -69,7 +69,7 @@ Route::post('/verify-registration', [tenantController::class, 'verifyRegistratio
 Route::match(['get', 'post'], '/SendOtp', [tenantController::class, 'SendOtp'])->name('SendOtp');
 Route::match(['get', 'post'], '/resendOtp', [tenantController::class, 'resendOtp'])->name('resendOtp');
 Route::match(['get', 'post'], '/registerTenant', [tenantController::class, 'registerTenant'])->name('registerTenant');
-Route::match(['get', 'post'], 'tenant-login',[tenantController::class,'loginTenant'])->name('tenant-login');
+Route::match(['get', 'post'], 'tenant-login', [tenantController::class, 'loginTenant'])->name('tenant-login');
 //landlord login
 Route::match(['get', 'post'], '/loginLandlord', [landlordaccountprocessController::class, 'loginLandlord'])->name('loginLandlord');
 
@@ -128,9 +128,9 @@ Route::middleware([LandlordAuth::class])->group(function () {
     //functions for landlord dorm rules and policy
     Route::post('/add-rules', [dormpageController::class, 'addRulesAndPolicy'])->name('add.rules');
     Route::delete('/delete-rules/{pivotId}', [dormpageController::class, 'deleteRulesAndPolicies'])->name('delete.rules');
-     //functions for amenities
-     Route::post('/add-amenities', [dormpageController::class, 'AddAmenities'])->name('add.amenities');
-     Route::delete('/delete-amenities/{id}', [dormpageController::class, 'DeleteAmenities'])->name('delete.amenities');
+    //functions for amenities
+    Route::post('/add-amenities', [dormpageController::class, 'AddAmenities'])->name('add.amenities');
+    Route::delete('/delete-amenities/{id}', [dormpageController::class, 'DeleteAmenities'])->name('delete.amenities');
     //functions for landlord room management
     Route::post('/addRoom', [roompageController::class, 'addRoom'])->name('addRoom');
     Route::post('/add-roomfeatures', [roompageController::class, 'addRoomFeatures'])->name('add.roomfeatures');
@@ -146,13 +146,13 @@ Route::middleware([LandlordAuth::class])->group(function () {
     Route::get('/ViewRoom/{id}', [roompageController::class, 'ViewRoom'])->name('ViewRoom');
     Route::get('/SearchRooms', [roompageController::class, 'searchRooms'])->name('SearchRooms');
     Route::post('/rooms/allow-reserve/{id}', [roompageController::class, 'allowReserve'])
-     ->name('rooms.allowReserve');
+        ->name('rooms.allowReserve');
 
     //functions for booking approval
     Route::get('/booking-list', [bookingpageController::class, 'bookingList']);
     Route::get('/booking-tenant-view/{id}', [bookingpageController::class, 'ViewTenant']);
-    Route::post('/handle-tenant-booking',[bookingpageController::class,'handletenantBooking']);
-    Route::delete('/delete-booking/{id}',[bookingpageController::class,'deleteBooking']);
+    Route::post('/handle-tenant-booking', [bookingpageController::class, 'handletenantBooking']);
+    Route::delete('/delete-booking/{id}', [bookingpageController::class, 'deleteBooking']);
     Route::get('/search-booking', [bookingpageController::class, 'searchBooking']);
     Route::get('/api/dorms', [bookingpageController::class, 'getDormName']);
     Route::get('/api/dorms/{dormId}/tenants', [bookingpageController::class, 'getTenantsByDorm']);
@@ -174,31 +174,31 @@ Route::middleware([LandlordAuth::class])->group(function () {
     Route::get('/tenants-view/{id}', [alltenantsController::class, 'ViewTenant']);
     Route::put('/tenants-update/{id}', [alltenantsController::class, 'updateTenantInformation']);
     Route::get('get-dorms/{landlordId}', [alltenantsController::class, 'getDorms']);
-    Route::get('get/roomtype',[alltenantsController::class,'getRoomTypes']);
-    Route::get('get/rooms',[alltenantsController::class,'getRooms']);
-    Route::get('get/roomsdetails',[alltenantsController::class,'getRoomsDetails']);
-    Route::put('/tenant/room/update/{roomID}',[alltenantsController::class,'roomUpdate']);
+    Route::get('get/roomtype', [alltenantsController::class, 'getRoomTypes']);
+    Route::get('get/rooms', [alltenantsController::class, 'getRooms']);
+    Route::get('get/roomsdetails', [alltenantsController::class, 'getRoomsDetails']);
+    Route::put('/tenant/room/update/{roomID}', [alltenantsController::class, 'roomUpdate']);
     Route::get('/tenants/search', [alltenantsController::class, 'searchTenants']);
     Route::get('/tenants/filter-by-dorm', [alltenantsController::class, 'filterByDorm']);
-    Route::post('/notify/tenant',[alltenantsController::class,'notifyTenant']);
-    Route::get('/add/movein/tenant',[alltenantsController::class,'addMoveInTenant']);
-    Route::get('/search/movein/tenant',[alltenantsController::class,'searchMoveInTenant']);
-    Route::get('/movein/tenant',[alltenantsController::class,'moveInTenant']);
-    Route::get('/view/tenant/payment/{tenantID}',[alltenantsController::class,'viewTenantPayment']);
-    Route::post('/update/extension/{id}',[alltenantsController::class,'updateTenantExtension']);
-    Route::post('/update/tenant/payment/extension/{id}',[alltenantsController::class,'updateTenantPaymentExtension']);
-    Route::post('/soft-delete/tenant/{id}',[alltenantsController::class,'softDelete']);
+    Route::post('/notify/tenant', [alltenantsController::class, 'notifyTenant']);
+    Route::get('/add/movein/tenant', [alltenantsController::class, 'addMoveInTenant']);
+    Route::get('/search/movein/tenant', [alltenantsController::class, 'searchMoveInTenant']);
+    Route::get('/movein/tenant', [alltenantsController::class, 'moveInTenant']);
+    Route::get('/view/tenant/payment/{tenantID}', [alltenantsController::class, 'viewTenantPayment']);
+    Route::post('/update/extension/{id}', [alltenantsController::class, 'updateTenantExtension']);
+    Route::post('/update/tenant/payment/extension/{id}', [alltenantsController::class, 'updateTenantPaymentExtension']);
+    Route::post('/soft-delete/tenant/{id}', [alltenantsController::class, 'softDelete']);
     Route::get('/report/active-tenants', [alltenantsController::class, 'generateActiveTenantReport'])
-    ->name('report.activeTenants');
+        ->name('report.activeTenants');
     Route::get('/report/extension-payments', [alltenantsController::class, 'generateExtensionPaymentReport'])
-    ->name('report.extensionPayments');
+        ->name('report.extensionPayments');
 
     //functions for messaging landlord
     Route::get('/api/landlord/conversations/{landlord_id}', [messagelandlordController::class, 'getConversations']);
     Route::get('/api/select/landlord/conversations/{landlord_id}', [messagelandlordController::class, 'selecttenantToMessage']);
     Route::get('/api/get/landlord/messages/{conversation_id}', [messagelandlordController::class, 'getMessages']);
     Route::post('/api/landlord/messages', [messagelandlordController::class, 'sendMessage']);
-     Route::post('/api/landlord/markasread/{id}', [messagelandlordController::class, 'markAsRead']);
+    Route::post('/api/landlord/markasread/{id}', [messagelandlordController::class, 'markAsRead']);
 
     //functions for notfications landlord
     Route::get('/notifications/lanlodrd/{landlord_id}', [notificationslandlordController::class, 'notificationsLandlord'])->name('notifications.landlord');
@@ -207,7 +207,7 @@ Route::middleware([LandlordAuth::class])->group(function () {
     Route::post('/notifications/mark-all-as-read', [notificationslandlordController::class, 'markAllAsRead']);
     Route::post('/clear/notifications', [notificationslandlordController::class, 'clearAll']);
     //functions for payment landlord 
-     Route::get('/paymentLandlord/{landlord_id}', [paymentlandlordController::class, 'paymentLandlordindex'])->name('payment.landlord');
+    Route::get('/paymentLandlord/{landlord_id}', [paymentlandlordController::class, 'paymentLandlordindex'])->name('payment.landlord');
     Route::post('/landlord/verify-payment', [paymentlandlordController::class, 'verifyPaymentLandlord'])->name('verify.payment.landlord');
     Route::get('/landlord/payment-success', [paymentlandlordController::class, 'paymentSuccess']);
     Route::get('/landlord/payment-cancel', [paymentlandlordController::class, 'paymentCancel']);
@@ -223,7 +223,7 @@ Route::middleware([LandlordAuth::class])->group(function () {
 Route::middleware([TenantAuth::class])->group(function () {
     Route::get('/homepage/{tenant_id}', [homepageController::class, 'homepage'])->name('homepage');
     Route::get('/tenant/update/account/{tenant_id}', [tenantupdateaccountController::class, 'tenantaccountUpdate'])->name('tenant.update');
- 
+
     Route::get('/room-details/{dormitory_id}/{tenant_id}', [dormdetailscontroller::class, 'dormDetailsIndex'])->name('room.details');
     Route::get('/room-selection/{dormitoryID}/{tenantID}', [selectionRoomController::class, 'SelectionRoom'])->name('room.selection');
     Route::get('/available-room/{dormitoryID}', [selectionRoomController::class, 'availableRooms'])->name('available.room');
@@ -235,26 +235,26 @@ Route::middleware([TenantAuth::class])->group(function () {
     Route::get('/view-room-details/{id}', [selectionRoomController::class, 'viewRoomDetails'])->name('view.room.details');
     Route::get('/booking-process/{roomId}/{tenantID}', [bookroomController::class, 'bookRoomPage']);
     Route::get('/get-room-details/{roomID}', [bookroomController::class, 'getRoom'])->name('get.room.details');
-    Route::post('/book-room',[bookroomController::class,'bookingaRoom']);
+    Route::post('/book-room', [bookroomController::class, 'bookingaRoom']);
 
     //homepage
-     Route::get('/tenant/dorms/surigao', [homepageController::class, 'dormSurigao']); 
-    Route::get('/api/top-rated-dorms', [homepageController::class, 'topRatedDorms']);  
-   Route::get('gender-preference-dorms/{tenant_id}',[homepageController::class,'genderPreference']);
-    Route::get('get/preferred-tenants',[homepageController::class,'getTenantPersonalized']);
-    Route::post('update/submit-personalized',[homepageController::class,'updateSubmitPersonalized']);
-    Route::get('get/room-and-dorm-personalized',[homepageController::class,'getRoomandDormPersonalized']);
+    Route::get('/tenant/dorms/surigao', [homepageController::class, 'dormSurigao']);
+    Route::get('/api/top-rated-dorms', [homepageController::class, 'topRatedDorms']);
+    Route::get('gender-preference-dorms/{tenant_id}', [homepageController::class, 'genderPreference']);
+    Route::get('get/preferred-tenants', [homepageController::class, 'getTenantPersonalized']);
+    Route::post('update/submit-personalized', [homepageController::class, 'updateSubmitPersonalized']);
+    Route::get('get/room-and-dorm-personalized', [homepageController::class, 'getRoomandDormPersonalized']);
     Route::post('/tenant-information', [dormdetailscontroller::class, 'tenantInformation'])->name('tenant.information');
     Route::post('/tenant-idPicture', [dormdetailscontroller::class, 'uploadTenantId'])->name('tenant.idPicture');
     Route::get('/dorms/{id}/review-stats', [dormdetailscontroller::class, 'reviewStats']);
     Route::get('/dorm-details', [dormdetailscontroller::class, 'ViewDorms'])->name('dorm.details');
     Route::get('/get/dorm/askai/{id}', [dormdetailscontroller::class, 'getdormAskAI']);
     Route::post('/send/ai', [dormdetailscontroller::class, 'askAI']);
-    Route::get('/roomDetail/{room_id}',[dormdetailscontroller::class,'roomDetails']);
-     Route::get('fillup/tenant',[dormdetailscontroller::class,'fillupTenant']);
+    Route::get('/roomDetail/{room_id}', [dormdetailscontroller::class, 'roomDetails']);
+    Route::get('fillup/tenant', [dormdetailscontroller::class, 'fillupTenant']);
 
 
-    
+
     //map dormitories page
     Route::get('/dorm-map{tenant_id}', [dormitoriesmapcontroller::class, 'dormitoriesMap'])->name('dorm.map');
     Route::get('/nearby-dorms', [dormitoriesmapcontroller::class, 'getNearbyByCoordinates']);
@@ -264,21 +264,21 @@ Route::middleware([TenantAuth::class])->group(function () {
     Route::post('/search-locations', [dormitories::class, 'searchLocations']);
     Route::post('/pricerecommendations', [dormitories::class, 'priceRecommendations']);
     Route::post('/gender-recommendations', [dormitories::class, 'genderRecommendations']);
-    Route::get('/select-cities',[dormitories::class,'selectedCityDorms']);
-    Route::get('/fetch-amenities',[dormitories::class,'fetchAmenities']);
-    Route::post('get/amenities',[dormitories::class,'getAmenities']);
-    Route::get('get/rate',[dormitories::class,'getRate']);
-    Route::get('get/sortByDate',[dormitories::class,'getSortByDate']);
-    Route::get('get/availability',[dormitories::class,'getAvailability']);
+    Route::get('/select-cities', [dormitories::class, 'selectedCityDorms']);
+    Route::get('/fetch-amenities', [dormitories::class, 'fetchAmenities']);
+    Route::post('get/amenities', [dormitories::class, 'getAmenities']);
+    Route::get('get/rate', [dormitories::class, 'getRate']);
+    Route::get('get/sortByDate', [dormitories::class, 'getSortByDate']);
+    Route::get('get/availability', [dormitories::class, 'getAvailability']);
     Route::post('/ai/question/reccomendations', [dormitories::class, 'getQuestionRecommendations']);
     Route::get('/most/watched/dorm/{id}', [dormitories::class, 'mostWatchedDorm']);
-//review and rating page
+    //review and rating page
     Route::get('/rating/reviews/{dormitory_id}/{tenant_id}', [reviewandfeedbackController::class, 'reviewandrating'])->name('review.rating');
     Route::get('/fetch/reviewsandrating/{dormitory_id}', [reviewandfeedbackController::class, 'fetchreviewandrating']);
 
 
     //tenant message
-   // In your routes
+    // In your routes
     Route::get('/tenant-message-nav/{tenant_id}', [tenantmessageController::class, 'tenantmessageIndex'])->name('tenant.message');
     Route::get('/tenant-message/{tenant_id}', [tenantmessageController::class, 'landlordtenantmessageIndex'])->name('tenant.landlord.message');
     Route::get('/api/tenant/conversations/{tenant_id}', [tenantmessageController::class, 'getLandlordConversation']);
@@ -286,21 +286,21 @@ Route::middleware([TenantAuth::class])->group(function () {
     Route::post('/api/tenant/messages', [tenantmessageController::class, 'sendLandlordMessage']);
     Route::post('/api/tenant/markasread/{id}', [tenantmessageController::class, 'markAsRead']);
     // view booking
-    
+
     Route::get('/view/booking/{tenant_id}', [mybookingController::class, 'viewBooking'])->name('view.booking');
     Route::get('/tenant/my-bookings/{tenant_id}', [mybookingController::class, 'mybookingList']);
     Route::get('/view/booking/details/{tenant_id}/{booking_id}', [mybookingdetailsController::class, 'viewBookingDetails'])->name('view.booking.details');
     Route::get('/my-bookings/details/{booking_id}', [mybookingdetailsController::class, 'bookingDetails']);
     Route::post('/tenant/pay-room/', [mybookingdetailsController::class, 'payRoom']);
-        Route::get('/cancel/booking/{bookingID}',[mybookingdetailsController::class,'cancelbooking']);
+    Route::get('/cancel/booking/{bookingID}', [mybookingdetailsController::class, 'cancelbooking']);
 
     // view next payment
     Route::get('/view/payment/{tenant_id}', [nextpaymentController::class, 'nextpaymentIndex'])->name('next.payment');
     Route::get('/tenant/payment/history/list/{tenant_id}', [nextpaymentController::class, 'paymentHistory']);
     Route::get('/api/total-amount/{tenantID}', [nextpaymentController::class, 'getTotalAmount']);
-    
 
- // view My Rooms
+
+    // view My Rooms
     Route::get('/view/myrooms/{tenant_id}', [myroomsController::class, 'myroomsIndex'])->name('next.myrooms');
     Route::get('/tenant/room-list/{tenant_id}', [myroomsController::class, 'myroomsList']);
     Route::get('/tenant/{id}/receipt', [myroomsController::class, 'generateReceipt']);
@@ -314,16 +314,15 @@ Route::middleware([TenantAuth::class])->group(function () {
     Route::get('/tenant/my-reservation/details/{reservationID}', [myreservationController::class, 'reservationDetails']);
     Route::get('/tenant/cancel/reservation/{reservationID}', [myreservationController::class, 'cancelReservation']);
     Route::post('/tenant/pay/reservation/{reservationID}', [myreservationController::class, 'paymentReservation']);
-// notifications view
+    // notifications view
     Route::get('/view/notifications/{tenant_id}', [notificationsController::class, 'notificationstenant'])->name('view.notifications.tenant');
-     Route::get('/get/notifications/tenant/{tenant_id}', [notificationsController::class, 'gettenantotificationsList']);
+    Route::get('/get/notifications/tenant/{tenant_id}', [notificationsController::class, 'gettenantotificationsList']);
     Route::post('/mark/read/tenant/{tenant_id}', [notificationsController::class, 'markAsRead']);
     Route::post('/notifications/mark-all-as-read/tenant', [notificationsController::class, 'markAllAsRead']);
     Route::post('/clear/notifications/tenant', [notificationsController::class, 'clearAll']);
-// tenant update 
-   Route::get('/get/tenant/data/{id}', [tenantupdateaccountController::class, 'getTenantData']);
+    // tenant update 
+    Route::get('/get/tenant/data/{id}', [tenantupdateaccountController::class, 'getTenantData']);
     Route::post('/update/tenant/data/{id}', [tenantupdateaccountController::class, 'updatetenantAccount']);
-
 });
 Route::get('/login-admin', [adminaccountController::class, 'adminIndex'])->name('admin.login');
 Route::post('/login-admin', [adminaccountController::class, 'adminLogin']);
@@ -333,10 +332,10 @@ Route::get('/admin/create', [adminaccountController::class, 'createAdmin'])->nam
 Route::middleware(['web', AdminAuth::class])->group(function () {
     Route::get('/admin/dashboard/{admin_id}', [admindashboardController::class, 'adminDashboardIndex'])
         ->name('admin.dashboard');
-    Route::get('/admin/get/total',[admindashboardController::class,'getTotals']);
+    Route::get('/admin/get/total', [admindashboardController::class, 'getTotals']);
     Route::get('/admin/get-subscribers-total', [admindashboardController::class, 'getSubscribersTotal']);
     Route::get('/generate-subscription-report', [admindashboardController::class, 'generateSubscriptionReport'])
-    ->name('generate.subscription.report');
+        ->name('generate.subscription.report');
 
     Route::get('/admin/tenantManagement/{admin_id}', [admintenantManagementController::class, 'admintenantManagemnentIndex'])
         ->name('admin.tenantmanagemnt');
@@ -346,36 +345,22 @@ Route::middleware(['web', AdminAuth::class])->group(function () {
     Route::get('/admin/active-tenant/{id}', [admintenantManagementController::class, 'reactivetenantAccount']);
     Route::post('/admin/tenant/send/email', [admintenantManagementController::class, 'sendTenantEmail']);
     Route::get('/generate-tenant-report', [admintenantManagementController::class, 'downloadTenantReport'])
-    ->name('generate.tenant.report');
+        ->name('generate.tenant.report');
     Route::get('/admin/search-tenants', [admintenantManagementController::class, 'searchTenants']);
 
 
     Route::get('/admin/LandlordManangement/{admin_id}', [adminlandlordManagementController::class, 'landlordManagementIndex'])
         ->name('admin.landlordmanagement');
     Route::get('/admin/get-landlord', [adminlandlordManagementController::class, 'getLandlords']);
-        Route::get('/admin/view-landlord/{id}', [adminlandlordManagementController::class, 'viewLandlordProfile']);
-  Route::get('/admin/deact-landlord/{id}', [adminlandlordManagementController::class, 'deactivateLandlordAccount']);
+    Route::get('/admin/view-landlord/{id}', [adminlandlordManagementController::class, 'viewLandlordProfile']);
+    Route::get('/admin/deact-landlord/{id}', [adminlandlordManagementController::class, 'deactivateLandlordAccount']);
     Route::get('/admin/active-landlord/{id}', [adminlandlordManagementController::class, 'reactivelandlordAccount']);
     Route::post('/admin/landlord/send/email', [adminlandlordManagementController::class, 'sendLandlordEmail']);
     Route::get('/generate-landlord-report', [adminlandlordManagementController::class, 'downloadLandlordReport'])
-    ->name('generate.landlord.report');
+        ->name('generate.landlord.report');
     Route::get('/admin/search-landlords', [adminlandlordManagementController::class, 'searchLandlords']);
-
 });
 
 Route::get('/test-auth', function () {
     return auth('landlord')->check() ? 'Authenticated as landlord' : 'NOT authenticated';
 });
-
-
-
-
-
-
-
-
-
-
-
-
-

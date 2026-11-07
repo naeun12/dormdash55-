@@ -1185,7 +1185,7 @@ export default {
         // Load Google Maps script dynamically
         const script = document.createElement("script");
         script.src =
-            "https://maps.googleapis.com/maps/api/js?key=AIzaSyA60IR46dCwVugKRbrCAUgUgpjriupq1oE&callback=initMap";
+            "https://maps.googleapis.com/maps/api/js?key=AIzaSyCbVSKsv35IGFWYg9C96B5swf6UaVj9IGQ&callback=initMap";
         script.async = true;
         script.defer = true;
         document.head.appendChild(script);
