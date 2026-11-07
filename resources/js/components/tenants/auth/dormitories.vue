@@ -1072,7 +1072,7 @@ export default {
 
         viewDormsDetails(dormitoryId) {
             this.tenant_id = window.tenant_id;
-            window.location.href = `/room-details/dormitoryId/{this.tenant_id}`;
+            window.location.href = `/room-details/${dormitoryId}/${this.tenant_id}`;
         },
 
         async goToPage(page) {
