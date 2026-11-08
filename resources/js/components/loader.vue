@@ -27,7 +27,8 @@ export default {
     data() {
         return {
             loading: false, // Set to true for preview
-            logoImage: "/images/Logo/Logo.png",
+            logoImage:
+                "https://dormdash55-production.up.railway.app/images/Logo/logo.png",
         };
     },
 };
