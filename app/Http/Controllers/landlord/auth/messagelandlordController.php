@@ -312,6 +312,7 @@ public function IdentityVerifaction(Request $request)
 
             ],400);
         }
+        /*hell*/
             $create = landlordModel::create([
                 'landlordID' => $landlordID,
                 'firstname' => $validated['firstname'],
