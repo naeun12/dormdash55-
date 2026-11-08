@@ -147,7 +147,7 @@
                                 </div>
                             </div>
 
-                            <div v-if="getDaysStayed(tenant.moveInDate) >= 2 && tenant.status === 'active'">
+                            <div >
                                 <div v-if="alreadyReviewed === tenant.has_rated"
                                     class="star-rating-container text-center shadow-sm">
                                     <h6 class="fw-bold mb-3">How's your stay?</h6>
@@ -176,13 +176,7 @@
                                     <i class="bi bi-check-circle-fill me-2"></i> Feedback submitted!
                                 </div>
                             </div>
-
-                            <div v-else-if="tenant.status != 'pending' && tenant.status != 'moved_out'"
-                                class="alert bg-warning-subtle text-warning-emphasis border-0 rounded-4 text-center p-3 small">
-                                <i class="bi bi-clock-history me-2"></i>
-                                Review available after <strong>3 days</strong> of stay.
-                            </div>
-
+                        
                             <div v-if="tenant.status != 'pending'" class="mt-3">
                                 <button class="btn btn-outline-danger w-100 border-2 rounded-3 py-2 small fw-bold"
                                     @click="messageMaintenance()">
