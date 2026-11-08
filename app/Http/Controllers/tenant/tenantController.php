@@ -1,23 +1,27 @@
 <?php
-
 namespace App\Http\Controllers\tenant;
-
 use App\Models\tenant\tenantModel;
 use App\Models\otpModel;
 use App\Jobs\DeleteExpiredOtpsJob;
-
+use App\Services\IprogSMSService;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+
+
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\tenantEmailOtp;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 
+
    use Illuminate\Support\Facades\Storage;
 
+
 use Carbon\Carbon;
+
 
 class tenantController extends Controller
 {
@@ -26,7 +30,9 @@ class tenantController extends Controller
         $title = 'Login - DormDash';
         return view('tenant.accountprocess.login', compact('title'));
 
+
     }
+
 
     public function register()
     {
@@ -35,7 +41,6 @@ class tenantController extends Controller
     }
     public function registerTenant(Request $request)
     {
-     
         try {
             $validated = $request->validate([
                 'firstname' => 'required|string|max:55',
@@ -52,30 +57,20 @@ class tenantController extends Controller
                 'codeotp' => 'required|digits:6',
                 'profile_pic' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:4096',
             ]);
-
-            // Handle the profile picture upload
             if ($request->hasFile('profile_pic')) {
             $image = $request->file('profile_pic');
             $imageName = time() . '.' . $image->getClientOriginalExtension();
-
-            // Save sa storage/app/public/uploads/profilePic
             $image->storeAs('public/uploads/profilePic', $imageName);
-
-            // Path nga i-store sa DB (without /storage prefix)
             $profilePicUrl = 'uploads/profilePic/' . $imageName;
         } else {
             $profilePicUrl = null;
              }
-
-
             $passwordHash = Hash::make($request->input('password'));
-
             $tenantId = Str::uuid();
             $verifyOtp = otpModel::where('email',$validated['email'])
             ->where('otpCode',$validated['codeotp'])
             ->where('otpExpiresAt', '>', now())
             ->first();
-            // Store the tenant data
             if(!$verifyOtp)
             {
                   return response()->json([
@@ -83,7 +78,6 @@ class tenantController extends Controller
                 'message' => 'Invalid OTP Submission. Please try again.',
                 'data' => null
             ],400);
-               
             }
              $tenant = tenantModel::create([
                 'tenantID' => $tenantId,
@@ -101,6 +95,21 @@ class tenantController extends Controller
                 'profilePicUrl' => $profilePicUrl,
             ]);
             $verifyOtp->where('email',$validated['email'])->forceDelete();
+            $message = " Welcome to DormDash, {$tenant->firstname}! Your tenant account has been successfully registered. You can now log in to your DormDash account.";
+            try{
+                app(IprogSMSService::class)->sendSMS($tenant->phoneNumber, $message);
+            }
+            catch (\Exception $smsError) {
+                Log::error('Tenant registration SMS failed: ' . $smsError->getMessage());
+            }
+             try {
+                Mail::raw($message, function ($mail) use ($tenant) {
+                    $mail->to($tenant->email)
+                        ->subject('Welcome to DormDash - Registration Successful');
+                });
+            } catch (\Exception $mailError) {
+                Log::error('Tenant registration email failed: ' . $mailError->getMessage());
+            }
             return response()->json([
                 'status' => 'success',
                 'message' => 'Registered Successfully!',
@@ -108,8 +117,6 @@ class tenantController extends Controller
                   'tenant' => $tenant
                 ]
             ],200);
-            
-            
         } catch (\Illuminate\Validation\ValidationException $e) {
        
     } catch (\Exception $e) {
@@ -119,23 +126,19 @@ class tenantController extends Controller
         ], 500);
     }
     }
-
-
        public function SendOtp(Request $request)
-{
-    // Validate the request
-    $validated = $request->validate([
-       
-
+    {
+        $validated = $request->validate([
         'email' => 'required|email|unique:tenants,email',
         'phonenumber' => 'required|string|unique:tenants,phonenumber|regex:/^\+?[0-9]{10,15}$/|max:11|min:11',
         'postalcode' => 'required|string|max:4|regex:/^[a-zA-Z0-9\s\-]+$/',
         'password' => 'required|string|min:8|confirmed',
     ], [
-        
+       
          'email.required' => 'The email field is required.',
         'email.email' => 'Please enter a valid email address.',
         'email.unique' => 'This email is already registered.',
+
 
         'phonenumber.required' => 'The phone number field is required.',
         'phonenumber.regex' => 'Please enter a valid phone number (e.g., +1234567890).',
@@ -143,46 +146,36 @@ class tenantController extends Controller
         'phonenumber.min' => 'Please enter a valid phone number (e.g., +1234567890).',
         'phonenumber.unique' => 'This phone number is already registered.',
 
+
         'postalcode.required' => 'The postal code field is required.',
         'postalcode.max' => 'The postal code cannot exceed 4 characters.',
         'postalcode.regex' => 'Please enter a valid postal code (e.g., alphanumeric with spaces or hyphens).',
 
+
         'password.required' => 'The password field is required.',
         'password.min' => 'The password must be at least 8 characters.',
         'password.confirmed' => 'The password confirmation does not match.',
-        
+       
+
 
     ]);
-
     try {
-        // Generate OTP
         $otpCode = rand(100000, 999999);
-        // Send OTP via email
         Mail::to($validated['email'])->send(new tenantEmailOtp($otpCode));
-
-        // Store OTP in the database
         $expiresAt = now()->addMinutes(1);
         otpModel::create([
             'email' => $validated['email'],
             'otpCode' => $otpCode,
             'otpExpiresAt' => $expiresAt,
         ]);
-
         return response()->json([
             'status' => 'success',
             'message' => 'Check Your Gmail To Verify Your Account',
             'timer' => $expiresAt,
         ], 200);
-                $delay = $expiresAt->diffInSeconds(now());
+        $delay = $expiresAt->diffInSeconds(now());
         DeleteExpiredOtpsJob::dispatch()->delay($delay);
-
-
     } catch (\Exception $e) {
-        \Log::error('Unexpected Error in SendOtp:', [
-            'message' => $e->getMessage(),
-            'trace' => $e->getTraceAsString(),
-        ]);
-
         return response()->json([
             'message' => 'An unexpected error occurred. Please try again.',
         ], 500);
@@ -193,7 +186,7 @@ public function resendOtp(Request $request)
     $validated = $request->validate([
          'email' => 'required|email',
     ],
-    [   
+    [  
         'email.exists' => 'No OTP record found for this email.',
     ]);
     try{
@@ -208,7 +201,7 @@ public function resendOtp(Request $request)
                 $newOtpExpiresAt = now()->addMinutes(1);
                    $otpRecord->update([
             'otpCode' => $newOtp,
-            'otpExpiresAt' => $newOtpExpiresAt, 
+            'otpExpiresAt' => $newOtpExpiresAt,
         ]);
                 Mail::to($validated['email'])->send(new tenantEmailOtp($newOtp));
                  return response()->json([
@@ -219,14 +212,12 @@ public function resendOtp(Request $request)
 
 
 
-    }
-    catch(Exception $ex)
-{   
-    \Log::error('Unexpected Error in ResendOtp:', [
-            'message' => $e->getMessage(),
-            'trace' => $e->getTraceAsString(),
-        ]);
 
+
+
+    }
+        catch(\Exception $ex)
+    {  
         return response()->json([
             'message' => 'An unexpected error occurred. Please try again.',
         ], 500);
@@ -245,10 +236,10 @@ public function loginTenant(Request $request)
             'email.email' => 'Please enter a valid email address',
             'password.required' => 'Please enter your password',
         ]);
-    
+   
         $user = tenantModel::where('email', $request->email)->first();
-    
-        if (!$user || !\Hash::check($request->password, $user->password)) {
+   
+        if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json(['message' => 'Invalid credentials.'], 401);
         }
           if ($user->is_deactivated == 1) {
@@ -259,6 +250,7 @@ public function loginTenant(Request $request)
         }
     Auth::guard('tenant')->login($user);
 
+
     session([
         'tenant_logged_in' => true,
         'tenant_id' => $user->tenantID,
@@ -266,7 +258,7 @@ public function loginTenant(Request $request)
         'tenant_lastname' => $user->lastname,
         'profilePicUrl' => $user->profilePicUrl
     ]);
-    
+   
         return response()->json([
             'message' => 'Login successful',
             'status' => 'success',
@@ -275,11 +267,12 @@ public function loginTenant(Request $request)
                 'firstname' =>$user->firstname,
                 'lastname' =>$user->lastname,
             ],
-    
+   
         ]);
     }
     catch(\Illuminate\Validation\ValidationException $e)
     {
+
 
     }
    
@@ -293,9 +286,18 @@ public function logout(Request $request)
 }
 
 
-    
+
+
+   
+
 
 }
+
+
+
+
+
+
 
 
 

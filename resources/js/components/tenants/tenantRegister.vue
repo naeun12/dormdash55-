@@ -1,6 +1,7 @@
 <template>
     <loader ref="loader" />
 
+
     <div
         v-show="toaster"
         :class="[
@@ -29,6 +30,7 @@
         </div>
     </div>
 
+
     <div
         class="card border-0 shadow-lg mt-4 py-4 mx-auto w-100 animate__animated animate__fadeIn"
         style="max-width: 850px; border-radius: 30px; background: #fff"
@@ -41,6 +43,7 @@
                 Fill in your details to start your dorm hunting journey.
             </p>
         </div>
+
 
         <form @submit.prevent="submitTenant">
             <div class="d-flex justify-content-center mb-5">
@@ -80,6 +83,7 @@
                 </div>
             </div>
 
+
             <div class="px-lg-5 px-4">
                 <h6
                     class="fw-bold mb-4 text-uppercase tracking-wider"
@@ -88,6 +92,7 @@
                     <i class="bi bi-person-fill me-2" style="color: #fc7d07"></i
                     >Personal Information
                 </h6>
+
 
                 <div class="row">
                     <div class="col-md-6 mb-3">
@@ -124,6 +129,7 @@
                     </div>
                 </div>
 
+
                 <div class="mb-3">
                     <label class="form-label small fw-bold text-muted"
                         >EMAIL ADDRESS</label
@@ -152,6 +158,7 @@
                         >{{ errors.email[0] }}</span
                     >
                 </div>
+
 
                 <div class="row">
                     <div class="col-md-6 mb-3">
@@ -183,6 +190,7 @@
                     </div>
                 </div>
 
+
                 <div class="form-check mb-4 ms-1">
                     <input
                         type="checkbox"
@@ -196,6 +204,7 @@
                         >Show Password</label
                     >
                 </div>
+
 
                 <div class="row">
                     <div class="col-md-6 mb-3">
@@ -240,6 +249,7 @@
                         </select>
                     </div>
                 </div>
+
 
                 <h6
                     class="fw-bold mb-4 mt-5 text-uppercase tracking-wider"
@@ -310,6 +320,7 @@
                     </div>
                 </div>
 
+
                 <div class="row">
                     <div class="col-md-4 mb-3">
                         <label class="form-label small fw-bold text-muted"
@@ -335,6 +346,7 @@
                     </div>
                 </div>
 
+
                 <div class="text-center mb-5 mt-2">
                     <button
                         type="button"
@@ -351,6 +363,7 @@
                         <i class="bi bi-chevron-right ms-2"></i>
                     </button>
 
+
                     <p class="mt-4 text-muted small">
                         Already have an account?
                         <a
@@ -364,6 +377,7 @@
             </div>
         </form>
     </div>
+
 
     <div v-if="modalVisible" class="otp-modal-overlay">
         <div class="otp-modal-content animate__animated animate__zoomIn">
@@ -389,6 +403,7 @@
                 </p>
             </div>
 
+
             <div class="otp-inputs-container mb-4">
                 <input
                     v-for="(digit, index) in otpdigits"
@@ -402,6 +417,7 @@
                     @keydown.backspace="handleBackspace(index)"
                 />
             </div>
+
 
             <div class="text-center mb-4">
                 <p
@@ -422,6 +438,7 @@
                     Resend Code
                 </button>
             </div>
+
 
             <div class="d-flex gap-2">
                 <button
@@ -449,6 +466,7 @@
     </div>
 </template>
 
+
 <script>
 import axios from "axios";
 import loader from "@/components/loader.vue";
@@ -464,6 +482,7 @@ export default {
             profilePic: "/images/registertenant/Profile-PNG-Photo.png",
             profileFile: null,
             firstname: "",
+
 
             lastname: "",
             email: "",
@@ -1218,6 +1237,7 @@ export default {
             this.toastColor = color;
             this.toaster = true;
 
+
             // Auto-hide after 3 seconds
             setTimeout(() => {
                 this.ExitToaster();
@@ -1240,6 +1260,7 @@ export default {
             this.cities = this.cityData[this.selectedProvince] || [];
             console.log("Cities:", this.cities);
         },
+
 
         startTimer() {
             this.intervalId = setInterval(() => {
@@ -1264,6 +1285,7 @@ export default {
             this.stopTimer();
         },
 
+
         validateForm() {
             this.errors = {};
             if (!this.firstname)
@@ -1287,8 +1309,10 @@ export default {
             if (!this.currentaddress)
                 this.errors.currentaddress = ["Current Address is required."];
 
+
             return Object.keys(this.errors).length === 0; // Return true if no errors
         },
+
 
         openModal() {
             this.errors = {};
@@ -1317,7 +1341,7 @@ export default {
             }
         },
         closeModal() {
-            this.modalVisible = true;
+            this.modalVisible = false;
             document.body.style.overflow = "";
         },
         async OtpVerification() {
@@ -1328,6 +1352,7 @@ export default {
                 password: this.password.trim(),
                 password_confirmation: this.password_confirmation.trim(),
             };
+
 
             try {
                 const response = await axios.post("/SendOtp", requestData, {
@@ -1341,10 +1366,12 @@ export default {
                 if (response.status === 200) {
                     this.showToast(response.data.message, "success");
 
+
                     setTimeout(() => {
                         this.toastgmailvisible = false;
                     }, 10000);
                     this.startOtpTimer(response.data.timer);
+
 
                     return true;
                 }
@@ -1372,7 +1399,6 @@ export default {
         },
         async submitTenant() {
             this.$refs.loader.loading = true;
-
             const formData = new FormData();
             formData.append("firstname", this.firstname);
             formData.append("lastname", this.lastname);
@@ -1390,14 +1416,13 @@ export default {
             formData.append("postalcode", this.postalcode);
             formData.append("currentaddress", this.currentaddress);
 
+
             if (this.profileFile) {
                 formData.append("profile_pic", this.profileFile);
             } else {
                 console.log("No Profile picture selected. Using default image");
             }
-
             formData.append("codeotp", this.otpdigits.join(""));
-
             try {
                 const response = await axios.post("/registerTenant", formData, {
                     headers: {
@@ -1406,10 +1431,10 @@ export default {
                             .getAttribute("content"),
                     },
                 });
+                this.modalVisible = false;
+
 
                 if (response.status === 200) {
-                    this.modalVisible = false;
-                    //
                     this.$refs.loader.loading = false;
                     this.showToast("Successfully Register", "success");
                     this.errors = {};
@@ -1430,6 +1455,7 @@ export default {
         async resendOtp() {
             this.$refs.loader.loading = true;
 
+
             try {
                 this.errors = {};
                 this.errorMessage = "";
@@ -1441,7 +1467,9 @@ export default {
                 if (response.data.status === "success") {
                     this.showToast(response.data.message, "success");
 
+
                     this.$refs.loader.loading = false;
+
 
                     this.startOtpTimer(response.data.timer);
                 }
@@ -1471,7 +1499,6 @@ export default {
             this.passwordFieldType =
                 this.passwordFieldType === "password" ? "text" : "password";
         },
-
         triggerFileInput() {
             this.$refs.fileInput.click();
         },
@@ -1495,6 +1522,7 @@ export default {
             return this.otpdigits.join("");
         },
 
+
         startOtpTimer(timerValue) {
             const expirationTime = new Date(timerValue);
             const currentTime = new Date();
@@ -1502,11 +1530,14 @@ export default {
                 (expirationTime - currentTime) / 1000,
             );
 
+
             this.otpTimer = remainingSeconds;
+
 
             if (this.otpInterval) {
                 clearInterval(this.otpInterval);
             }
+
 
             this.otpInterval = setInterval(() => {
                 if (remainingSeconds <= 0) {
@@ -1518,6 +1549,7 @@ export default {
                 }
             }, 1000);
         },
+
 
         fill() {
             this.profilePic = "/images/registertenant/Profile-PNG-Photo.png";
@@ -1553,3 +1585,6 @@ export default {
 };
 </script>
 <style scoped src="./../../../css/accountprocess/tenantRegister.css"></style>
+
+
+
