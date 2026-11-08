@@ -46,62 +46,40 @@ class reviewandfeedbackController extends Controller
              'unread_count' => $unreadCount,]);
         }
 
-    public function fetchreviewandrating($dormitory_id)
-    {
-        try {
-            $dorm = dormModel::find($dormitory_id);
+   public function fetchreviewandrating($dormitory_id)
+{
+    $reviews = reviewandratingModel::with('tenant')
+        ->where('fkdormID', $dormitory_id)
+        ->latest()
+        ->get();
 
-            if (!$dorm) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Dormitory not found.'
-                ], 404);
-            }
+    $averageRating = round($reviews->avg('rating') ?? 0, 1);
 
-            $reviews = reviewandratingModel::with('tenant')
-                ->where('fkdormID', $dormitory_id)
-                ->whereNotNull('review')
-                ->where('review', '!=', '')
-                ->latest()
-                ->get();
+    $totalReviewers = $reviews->count();
 
-            $averageRating = round($reviews->avg('rating') ?? 0, 1);
+    $starRatings = [];
 
-            $totalReviewers = $reviews->count();
+    for ($i = 5; $i >= 1; $i--) {
 
-            $starRatings = [];
+        $count = $reviews->where('rating', $i)->count();
 
-            for ($i = 5; $i >= 1; $i--) {
+        $percentage = $totalReviewers > 0
+            ? round(($count / $totalReviewers) * 100, 2)
+            : 0;
 
-                $count = $reviews->where('rating', $i)->count();
-
-                $percentage = $totalReviewers > 0
-                    ? round(($count / $totalReviewers) * 100, 2)
-                    : 0;
-
-                $starRatings[] = [
-                    'stars' => $i,
-                    'count' => $count,
-                    'percentage' => $percentage
-                ];
-            }
-
-            return response()->json([
-                'success' => true,
-                'averageRating' => $averageRating,
-                'totalReviewers' => $totalReviewers,
-                'starRatings' => $starRatings,
-                'reviews' => $reviews
-            ], 200);
-
-        } catch (\Throwable $e) {
-
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Something went wrong while fetching reviews.'
-            ], 500);
-        }
+        $starRatings[] = [
+            'stars' => $i,
+            'count' => $count,
+            'percentage' => $percentage
+        ];
     }
 
+    return response()->json([
+        'success' => true,
+        'averageRating' => $averageRating,
+        'totalReviewers' => $totalReviewers,
+        'starRatings' => $starRatings,
+        'reviews' => $reviews
+    ]);
+}
 }
