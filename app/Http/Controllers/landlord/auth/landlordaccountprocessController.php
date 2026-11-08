@@ -15,25 +15,29 @@ use App\Mail\tenantEmailOtp;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
-
 use Illuminate\Support\Facades\Storage;
 
 class landlordaccountprocessController extends Controller
 {
+    // Ipakita ang registration page para sa landlord.
     public function landlordRegister()
     {
         return view('landlord.accountprocess.register', ['title' => 'Landlord - Register']);
     }
-     public function landlordLogin()
+
+    // Ipakita ang login page para sa landlord.
+    public function landlordLogin()
     {
         return view('landlord.accountprocess.login', ['title' => 'Landlord - login']);
     }
 
+    // I-validate ang personal information nga gisubmit sa landlord.
     public function personalDetails(Request $request)
     {
         try {
+            // Susiha kung kompleto ug sakto ang format sa tanang input.
             $validated = $request->validate([
-               'firstname' => 'required|string|regex:/^[A-Za-z]+( [A-Za-z]+)*$/',
+                'firstname' => 'required|string|regex:/^[A-Za-z]+( [A-Za-z]+)*$/',
                 'lastname' => 'required|string|regex:/^[A-Za-z]+( [A-Za-z]+)*$/',
                 'email' => 'required|email|unique:landlords,email',
                 'phonenumber' => 'required|string|unique:landlords,phonenumber|regex:/^\+?[0-9]{10,15}$/|size:11',
@@ -41,6 +45,7 @@ class landlordaccountprocessController extends Controller
                 'profilePic' => 'required|image|mimes:jpg,png,jpeg|max:2048',
                 'gender' => 'required|string',
             ], [
+                // Custom error messages nga ipakita kung dili makapasar sa validation.
                 'firstname.required' => 'Please enter your first name.',
                 'lastname.required' => 'Please enter your last name.',
                 'email.required' => 'Please enter your email.',
@@ -57,13 +62,15 @@ class landlordaccountprocessController extends Controller
                 'profilePic.max' => 'Image size must not exceed 2MB',
                 'gender' => 'Please enter your gender.',
             ]);
-            
-                return response()->json([
-                    'status' => 'success',
-                    'message' => 'Validation passed and image uploaded successfully.'
-                ], 200);
-        
+
+            // Ibalik ang success response kung nakapasar ang tanang input.
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Validation passed and image uploaded successfully.'
+            ], 200);
+
         } catch (\Illuminate\Validation\ValidationException $e) {
+            // Ibalik ang validation errors aron mahibal-an sa frontend ang sayop nga fields.
             return response()->json([
                 'status' => 'error',
                 'message' => 'Validation errors occurred.',
@@ -71,6 +78,7 @@ class landlordaccountprocessController extends Controller
             ], 422);
 
         } catch (\Exception $e) {
+            // Ibalik ang server error kung adunay wala damhang problema.
             return response()->json([
                 'status' => 'error',
                 'message' => 'An unexpected error occurred. Please try again.',
@@ -79,109 +87,111 @@ class landlordaccountprocessController extends Controller
         }
     }
 
-   
-public function IdentityVerifaction(Request $request)
-{
-    // Validate before entering try-catch.
-    $validated = $request->validate([
-        'governmentIdPic' => 'required|image|mimes:jpg,png,jpeg,webp|max:2048',
-    ], [
-        'governmentIdPic.required' => 'Please upload a government ID picture.',
-        'governmentIdPic.image' => 'The file must be an image.',
-        'governmentIdPic.mimes' => 'Only JPG, PNG, JPEG, and WebP images are allowed.',
-        'governmentIdPic.max' => 'The image may not be greater than 2MB.',
-    ]);
+    // Ipa-analyze sa AI service ang government ID nga gi-upload sa landlord.
+    public function IdentityVerifaction(Request $request)
+    {
+        // I-validate una ang government ID image sa dili pa ipadayon ang proseso.
+        $validated = $request->validate([
+            'governmentIdPic' => 'required|image|mimes:jpg,png,jpeg,webp|max:2048',
+        ], [
+            'governmentIdPic.required' => 'Please upload a government ID picture.',
+            'governmentIdPic.image' => 'The file must be an image.',
+            'governmentIdPic.mimes' => 'Only JPG, PNG, JPEG, and WebP images are allowed.',
+            'governmentIdPic.max' => 'The image may not be greater than 2MB.',
+        ]);
 
-    try {
-        $image = $request->file('governmentIdPic');
+        try {
+            // Kuhaa ang uploaded image gikan sa request.
+            $image = $request->file('governmentIdPic');
 
-        // Python FastAPI endpoint
-        $pythonApiUrl = env(
-            'ID_AI_API_URL',
-            'https://dormdashai-production.up.railway.app/analyze'
-        );
+            // Python FastAPI endpoint nga modawat ug mo-analyze sa government ID.
+            $pythonApiUrl = env(
+                'ID_AI_API_URL',
+                'https://dormdashai-production.up.railway.app/analyze'
+            );
 
-        // Send image to Python
-        $response = Http::timeout(90)
-            ->attach(
-                'file',
-                file_get_contents($image->getRealPath()),
-                $image->getClientOriginalName()
-            )
-            ->post($pythonApiUrl);  
+            // Ipadala ang image ngadto sa Python AI API gamit ang HTTP request.
+            $response = Http::timeout(90)
+                ->attach(
+                    'file',
+                    file_get_contents($image->getRealPath()),
+                    $image->getClientOriginalName()
+                )
+                ->post($pythonApiUrl);
 
-        // Python API error
-        if (!$response->successful()) {
-       
+            // Susiha kung unsuccessful ang tubag gikan sa Python API.
+            if (!$response->successful()) {
 
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Unable to analyze the ID image. Please try again.',
+                ], 502);
+            }
+
+            // Kuhaa ang JSON response nga gibalik sa AI service.
+            $aiResult = $response->json();
+
+            // Siguroha nga valid array ang response gikan sa AI.
+            if (!is_array($aiResult)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'The AI service returned an invalid response.',
+                ], 502);
+            }
+
+            // I-reject ang image kung dili kini Philippine government ID.
+            if (($aiResult['verification_status'] ?? null) === 'invalid_id') {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $aiResult['message']
+                        ?? 'The uploaded image is not a valid Philippine government ID.',
+                    'analysis' => $aiResult['analysis'] ?? null,
+                    'verification_status' => 'invalid_id',
+                    'recommended_action' => 'reject',
+                ], 422);
+            }
+
+            // Susiha kung successful ba ang AI analysis.
+            if (($aiResult['success'] ?? false) !== true) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $aiResult['message'] ?? 'AI analysis failed.',
+                ], 502);
+            }
+
+            // Dawaton ang detected Philippine ID apan ipaagi gihapon sa manual review.
             return response()->json([
-                'status' => 'error',
-                'message' => 'Unable to analyze the ID image. Please try again.',
-            ], 502);
-        }
-
-        $aiResult = $response->json();
-
-        // Check if response is valid JSON
-        if (!is_array($aiResult)) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'The AI service returned an invalid response.',
-            ], 502);
-        }
-
-        // REJECT: Not a Philippine government ID
-        if (($aiResult['verification_status'] ?? null) === 'invalid_id') {
-            return response()->json([
-                'status' => 'error',
+                'status' => 'success',
                 'message' => $aiResult['message']
-                    ?? 'The uploaded image is not a valid Philippine government ID.',
+                    ?? 'ID image analysis completed.',
                 'analysis' => $aiResult['analysis'] ?? null,
-                'verification_status' => 'invalid_id',
-                'recommended_action' => 'reject',
-            ], 422);
-        }
+                'verification_status' => 'pending',
+                'recommended_action' => 'manual_review',
+            ], 200);
 
-        // Check AI success
-        if (($aiResult['success'] ?? false) !== true) {
+        } catch (\Illuminate\Http\Client\ConnectionException $e) {
+
+            // Ibalik ang service unavailable kung dili makakonekta sa AI API.
             return response()->json([
                 'status' => 'error',
-                'message' => $aiResult['message'] ?? 'AI analysis failed.',
-            ], 502);
+                'message' => 'The AI service is unavailable. Please try again later.',
+            ], 503);
+
+        } catch (\Exception $e) {
+
+            // Ibalik ang general server error kung adunay problema sa proseso.
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An unexpected error occurred. Please try again.',
+            ], 500);
         }
-
-        // ACCEPT: Philippine ID detected, manual review required
-        return response()->json([
-            'status' => 'success',
-            'message' => $aiResult['message']
-                ?? 'ID image analysis completed.',
-            'analysis' => $aiResult['analysis'] ?? null,
-            'verification_status' => 'pending',
-            'recommended_action' => 'manual_review',
-        ], 200);
-
-    } catch (\Illuminate\Http\Client\ConnectionException $e) {
-
-
-        return response()->json([
-            'status' => 'error',
-            'message' => 'The AI service is unavailable. Please try again later.',
-        ], 503);
-
-    } catch (\Exception $e) {
-
-
-        return response()->json([
-            'status' => 'error',
-            'message' => 'An unexpected error occurred. Please try again.',
-        ], 500);
     }
-}
 
-
+    // I-validate ang business permit ug ipadala ang OTP ngadto sa landlord's email.
     public function businessPermitValidation(Request $request)
     {
         try {
+            // Susiha ang business permit image ug email address.
             $validated = $request->validate([
                 'businessPermitPic' => 'required|image|mimes:jpg,png,jpeg|max:2048',
                 'email' => 'required|email|unique:landlords,email',
@@ -192,23 +202,31 @@ public function IdentityVerifaction(Request $request)
                 'businessPermitPic.max' => 'The image may not be greater than 2MB.',
             ]);
 
+            // Mag-generate ug random nga 6-digit OTP.
             $otpCode = rand(100000, 999999);
-                        // $otpCode = '123456';
+            // $otpCode = '123456';
 
+            // Ibutang ang expiration sa OTP ngadto sa usa ka minuto.
             $expiresAt = now()->addMinutes(1);
 
-             Mail::to($validated['email'])->send(new tenantEmailOtp($otpCode));
-             otpModel::create([
+            // Ipadala ang OTP ngadto sa email gamit ang tenantEmailOtp mail class.
+            Mail::to($validated['email'])->send(new tenantEmailOtp($otpCode));
+
+            // I-save ang OTP, email, expiration ug role sa database.
+            otpModel::create([
                 'email' => $validated['email'],
                 'otpCode' => $otpCode,
                 'otpExpiresAt' => $expiresAt,
                 'role' => 'landlord',
             ]);
-            
 
+            // Kwentaha ang nahibiling oras sa OTP expiration.
             $delay = $expiresAt->diffInSeconds(now());
+
+            // I-schedule ang job aron tangtangon ang expired OTP.
             DeleteExpiredOtpsJob::dispatch()->delay($delay);
 
+            // Ibalik ang success response ug expiration timer ngadto sa frontend.
             return response()->json([
                 'status' => 'success',
                 'message' => 'OTP has been sent to your Gmail.',
@@ -216,12 +234,14 @@ public function IdentityVerifaction(Request $request)
             ], 200);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
+            // Ibalik ang validation errors kung dili valid ang input.
             return response()->json([
                 'status' => 'error',
                 'message' => $e->errors(),
             ], 422);
 
         } catch (\Exception $e) {
+            // Ibalik ang server error kung mapakyas ang OTP sending o saving.
             return response()->json([
                 'status' => 'error',
                 'message' => 'An unexpected error occurred. Please try again.',
@@ -229,32 +249,40 @@ public function IdentityVerifaction(Request $request)
             ], 500);
         }
     }
+
+    // I-register ang landlord human makompleto ang personal ug verification requirements.
     public function RegisterLandlord(Request $request)
     {
         try
         {
+            // I-validate ang tanang impormasyon ug documents nga gikinahanglan sa registration.
             $validated = $request->validate([
                 'firstname' => 'required|string',
                 'lastname' => 'required|string',
                 'email' => 'required|email|unique:landlords,email',
                 'phonenumber' => 'required|string|unique:landlords,phonenumber|regex:/^\+?[0-9]{10,15}$/|size:11',
                 'password' => 'required|string|min:8|confirmed',
-                'gender' =>   'required|string',
+                'gender' => 'required|string',
                 'profilePic' => 'required|image|mimes:jpg,png,jpeg|max:2048',
                 'businessPermitPic' => 'required|image|mimes:jpg,png,jpeg|max:2048',
                 'governmentIdPic' => 'required|image|mimes:jpg,png,jpeg|max:2048',
                 'codeotp' => 'required|digits:6',
             ]);
+
+            // I-initialize ang mga variable nga gamiton sa pag-store sa image paths.
             $profilePicPath = null;
             $businessPermitPath = null;
             $governmentIdPath = null;
-           if ($request->hasFile('profilePic')) {
-            $image = $request->file('profilePic');
-            $imageName = time() . '_profile.' . $image->getClientOriginalExtension();
-            $imagePath = $image->storeAs('public/uploads/profilePic', $imageName);
-            $profilePicPath = 'storage/uploads/profilePic/' . $imageName;
-          }
 
+            // I-save ang landlord profile picture sa public storage.
+            if ($request->hasFile('profilePic')) {
+                $image = $request->file('profilePic');
+                $imageName = time() . '_profile.' . $image->getClientOriginalExtension();
+                $imagePath = $image->storeAs('public/uploads/profilePic', $imageName);
+                $profilePicPath = 'storage/uploads/profilePic/' . $imageName;
+            }
+
+            // I-save ang business permit image sa public storage.
             if ($request->hasFile('businessPermitPic')) {
                 $image = $request->file('businessPermitPic');
                 $imageName = time() . '_permit.' . $image->getClientOriginalExtension();
@@ -262,27 +290,34 @@ public function IdentityVerifaction(Request $request)
                 $businessPermitPath = 'storage/uploads/businessPermitPic/' . $imageName;
             }
 
+            // I-save ang government ID image sa public storage.
             if ($request->hasFile('governmentIdPic')) {
                 $image = $request->file('governmentIdPic');
                 $imageName = time() . '_govid.' . $image->getClientOriginalExtension();
                 $imagePath = $image->storeAs('public/uploads/governmentIdPic', $imageName);
                 $governmentIdPath = 'storage/uploads/governmentIdPic/' . $imageName;
             }
-              $landlordID = Str::uuid();
-               $verifyOtp = otpModel::where('email',$validated['email'])
-            ->where('otpCode',$validated['codeotp'])
-            ->where('otpExpiresAt', '>', now())
-            ->first();
-            // Store the tenant data
-            if(!$verifyOtp)
-            {
-                  return response()->json([
-                'status' => 'error',
-                'message' => 'Invalid OTP Submission. Please try again.',
-                'data' => null
 
-            ],400);
-        }
+            // Mag-generate ug unique UUID para mahimong landlord ID.
+            $landlordID = Str::uuid();
+
+            // Pangitaa ang OTP nga motakdo sa email, code ug wala pa ma-expire.
+            $verifyOtp = otpModel::where('email', $validated['email'])
+                ->where('otpCode', $validated['codeotp'])
+                ->where('otpExpiresAt', '>', now())
+                ->first();
+
+            // Susiha kung valid ba ang OTP sa wala pa i-save ang landlord account.
+            if (!$verifyOtp)
+            {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Invalid OTP Submission. Please try again.',
+                    'data' => null
+                ], 400);
+            }
+
+            // I-save ang landlord information ug uploaded document paths sa database.
             $create = landlordModel::create([
                 'landlordID' => $landlordID,
                 'firstname' => $validated['firstname'],
@@ -294,18 +329,21 @@ public function IdentityVerifaction(Request $request)
                 'profilePicUrl' => $profilePicPath,
                 'govermentID' => $governmentIdPath,
                 'businessPermit' => $businessPermitPath,
-                ]);
-                 $verifyOtp->where('email',$validated['email'])->forceDelete();
+            ]);
 
-                return response()->json([
-                    'status' => 'success',
-                    'message' => 'Welcome aboard! DormDash is happy to have you.',
-                ],200);
-            
+            // Tangtangon ang gigamit nga OTP human malampuson ang registration.
+            $verifyOtp->where('email', $validated['email'])->forceDelete();
+
+            // Ibalik ang success response kung nahimo na ang landlord account.
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Welcome aboard! DormDash is happy to have you.',
+            ], 200);
 
         }
         catch(\Illuminate\Validation\ValidationException $e)
         {
+            // Ibalik ang validation errors kung adunay kulang o invalid nga input.
             return response()->json([
                 'status' => 'error',
                 'message' => 'Validation failed.',
@@ -313,6 +351,7 @@ public function IdentityVerifaction(Request $request)
             ], 422);
 
         } catch (\Exception $e) {
+            // Ibalik ang general error kung mapakyas ang registration process.
             return response()->json([
                 'status' => 'error',
                 'message' => 'An unexpected error occurred. Please try again.',
@@ -320,101 +359,131 @@ public function IdentityVerifaction(Request $request)
             ], 500);
         }
     }
-    public function resendOtp(Request $request)
-{
-    $validated = $request->validate([
-         'email' => 'required|email',
-    ],
-    [   
-        'email.exists' => 'No OTP record found for this email.',
-    ]);
 
-         $otpRecord = otpModel::where('email',$validated['email']);
-    if(!$otpRecord)
+    // Magpadala ug bag-ong OTP ngadto sa email sa landlord.
+    public function resendOtp(Request $request)
     {
-        return response()->json([
-            'message' => 'No OTP record found for this email',
+        // I-validate ang email address nga gipasa gikan sa frontend.
+        $validated = $request->validate([
+            'email' => 'required|email',
+        ],
+        [
+            'email.exists' => 'No OTP record found for this email.',
         ]);
-    }
-                $newOtp = rand(100000, 999999);
-                $newOtpExpiresAt = now()->addMinutes(1);
-                   $otpRecord->update([
+
+        // Pangitaa ang OTP record base sa email address.
+        $otpRecord = otpModel::where('email', $validated['email']);
+
+        // Susiha kung adunay OTP record nga makit-an.
+        if (!$otpRecord)
+        {
+            return response()->json([
+                'message' => 'No OTP record found for this email',
+            ]);
+        }
+
+        // Mag-generate ug bag-ong 6-digit OTP.
+        $newOtp = rand(100000, 999999);
+
+        // Ibutang ang expiration sa bag-ong OTP ngadto sa usa ka minuto.
+        $newOtpExpiresAt = now()->addMinutes(1);
+
+        // I-update ang OTP code ug expiration sa database.
+        $otpRecord->update([
             'otpCode' => $newOtp,
-            'otpExpiresAt' => $newOtpExpiresAt, 
+            'otpExpiresAt' => $newOtpExpiresAt,
         ]);
-                Mail::to($validated['email'])->send(new tenantEmailOtp($newOtp));
-                 return response()->json([
+
+        // Ipadala ang bag-ong OTP ngadto sa email sa landlord.
+        Mail::to($validated['email'])->send(new tenantEmailOtp($newOtp));
+
+        // Ibalik ang success response ug bag-ong expiration timer.
+        return response()->json([
             'status' => 'success',
             'message' => 'A new OTP has been sent to your email.',
             'timer' => $newOtpExpiresAt
         ], 200);
+    }
 
-    
-   
+    // Iproseso ang landlord login gamit ang email ug password.
+    public function loginLandlord(Request $request)
+    {
+        try {
+            // I-validate ang login credentials nga gisubmit sa user.
+            $request->validate([
+                'email' => 'required|email',
+                'password' => 'required',
+            ]);
 
-}
-public function loginLandlord(Request $request)
-{
-    try{
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
-    
-        $user = landlordModel::where('email', $request->email)->first();
-    
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json(['message' => 'Invalid credentials.'], 401);
+            // Pangitaa ang landlord account gamit ang email address.
+            $user = landlordModel::where('email', $request->email)->first();
+
+            // Susiha kung adunay account ug motakdo ba ang password sa hashed password.
+            if (!$user || !Hash::check($request->password, $user->password)) {
+                return response()->json(['message' => 'Invalid credentials.'], 401);
+            }
+
+            // Dili tugotan ang login kung deactivated ang landlord account.
+            if ($user->is_deactivated == 1) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Your account has been deactivated. Please contact support.'
+                ], 403);
+            }
+
+            // I-authenticate ang landlord gamit ang landlord authentication guard.
+            Auth::guard('landlord')->login($user);
+
+            // Ibutang ang landlord information sa session aron magamit sa ubang pages.
+            session([
+                'landlord_logged_in' => true,
+                'landlord_id' => $user->landlordID,
+                'landlord_firstname' => $user->firstname,
+                'landlord_lastname' => $user->lastname,
+                'landlord_avatar' => $user->profilePicUrl
+            ]);
+
+            // Ibalik ang login success response ug basic landlord information.
+            return response()->json([
+                'message' => 'Login successful',
+                'status' => 'success',
+                'landlord' => [
+                    'id' => $user->landlordID,
+                    'firstname' => $user->firstname,
+                    'lastname' => $user->lastname,
+                ],
+            ]);
         }
-          if ($user->is_deactivated == 1) {
+        catch(\Illuminate\Validation\ValidationException $e)
+        {
+            // Ibalik ang validation errors kung dili sakto ang login input.
             return response()->json([
                 'status' => 'error',
-                'message' => 'Your account has been deactivated. Please contact support.'
-            ], 403);
+                'errors' => $e->errors(),
+            ], 422);
         }
-    Auth::guard('landlord')->login($user);
-
-    session([
-        'landlord_logged_in' => true,
-        'landlord_id' => $user->landlordID,
-        'landlord_firstname' => $user->firstname,
-        'landlord_lastname' => $user->lastname,
-        'landlord_avatar' => $user->profilePicUrl
-    ]);
-    
-        return response()->json([
-            'message' => 'Login successful',
-            'status' => 'success',
-            'landlord' => [
-                'id' => $user->landlordID,
-                'firstname' =>$user->firstname,
-                'lastname' =>$user->lastname,
-            ],
-    
-        ]);
+        catch (\Exception $e) {
+            // Ibalik ang server error kung adunay problema sa login process.
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
-   catch(\Illuminate\Validation\ValidationException $e)
-{
-    return response()->json([
-        'status' => 'error',
-        'errors' => $e->errors(),  // use 'errors' key instead of 'message'
-    ], 422);
-}
- catch (\Exception $e) {
-        return response()->json([
-            'status' => 'error',
-            'message' => $e->getMessage(),
-        ], 500);
+
+    // I-logout ang landlord ug tangtangon ang iyang active session.
+    public function logoutlandlord(Request $request)
+    {
+        // I-logout ang authenticated user.
+        Auth::logout();
+
+        // I-invalidate ang current session aron dili na magamit pag-usab.
+        $request->session()->invalidate();
+
+        // Mag-generate ug bag-ong CSRF token para sa sunod nga session.
+        $request->session()->regenerateToken();
+
+        // I-redirect ang user balik sa landlord login page.
+        return redirect('/landlordLogin');
     }
-    
-}
-public function logoutlandlord(Request $request)
-{
-    Auth::logout();
-    $request->session()->invalidate();
-    $request->session()->regenerateToken();
-    return redirect('/landlordLogin');
-}
-
-
 }

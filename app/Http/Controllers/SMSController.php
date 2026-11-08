@@ -1,37 +1,38 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Services\PhilSMSService;
 
 use Illuminate\Http\Request;
+use App\Mail\userEmail;
+use Illuminate\Support\Facades\Mail;
 
-class SMSController extends Controller
+class landingPageController extends Controller
 {
-    public function send(Request $request, PhilSMSService $sms)
+    // I-display ang landing page sa website.
+    public function landingPage()
     {
-        $validated = $request->validate([
-            'phone' => ['required', 'regex:/^639\d{9}$/'],
+        return view('landingpage.landingpage');
+    }
+
+    // I-process ang contact form ug ipadala ang email sa user.
+    public function sendEmail(Request $request)
+    {
+        // I-validate ang mga input gikan sa contact form.
+        $request->validate([
+            'name'    => 'required|string|max:255',
+            'email'   => 'required|email',
             'message' => 'required|string|max:1000',
         ]);
 
-        try {
-            $result = $sms->sendSMS(
-                $validated['phone'],
-                $validated['message']
-            );
+        // Kuhaon ang pangalan ug mensahe nga gisubmit sa user.
+        $tenantName = $request->name;
+        $messageBody = $request->message;
 
-            return response()->json([
-                'success' => true,
-                'message' => 'SMS request submitted.',
-                'data' => $result,
-            ]);
+        // Ipadala ang email gamit ang userEmail Mailable class.
+        Mail::to($request->email)->send(new userEmail($tenantName, $messageBody));
 
-        } catch (\Throwable $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to send SMS.',
-                'error' => $e->getMessage(),
-            ], 500);
-        }
+        // Ibalik ang user sa previous page uban ang success message.
+        return back()->with('success', 'Your message has been sent successfully!');
     }
 }
+

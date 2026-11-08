@@ -11,36 +11,29 @@ use Illuminate\Queue\SerializesModels;
 
 class userEmail extends Mailable
 {
+    // Gamita ang Queueable ug SerializesModels para sa email processing.
     use Queueable, SerializesModels;
 
-    /**
-     * Create a new message instance.
-     */
-   use Queueable, SerializesModels;
-
-    /**
-     * Create a new message instance.
-     */
+    // I-declare ang variables nga gamiton sa email template.
     public $tenantName;
     public $messageBody;
-   public function __construct($tenantName, $messageBody)
+
+    // I-initialize ang pangalan ug mensahe nga ipasa gikan sa controller.
+    public function __construct($tenantName, $messageBody)
     {
         $this->tenantName = $tenantName;
         $this->messageBody = $messageBody;
     }
 
-    /**
-     * Get the message envelope.
-     */
+    // I-set ang subject o title sa email.
     public function envelope(): Envelope
     {
         return new Envelope(
             subject: 'DormDash  Reminder'
         );
     }
-    /**
-     * Get the message content definition.
-     */
+
+    // I-specify ang Blade view nga gamiton isip sulod sa email.
     public function content(): Content
     {
         return new Content(
@@ -48,13 +41,10 @@ class userEmail extends Mailable
         );
     }
 
-    /**
-     * Get the attachments for the message.
-     *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
-     */
+    // I-return ang mga attachment nga i-apil sa email.
     public function attachments(): array
     {
         return [];
     }
 }
+

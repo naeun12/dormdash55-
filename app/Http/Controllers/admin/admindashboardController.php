@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
@@ -9,9 +10,9 @@ use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 
-
 class admindashboardController extends Controller
 {
+    // Ipakita ang admin dashboard page ug ipasa ang admin ID.
     public function adminDashboardIndex($admin_id)
     {
         return view('admin.auth.admindashboard', [
@@ -20,56 +21,68 @@ class admindashboardController extends Controller
         ]);
     }
 
+    // Kuhaon ang total tenants, landlords, ug successful payment collection.
     public function getTotals()
-{
-    $totals = [
-        'totalTenants'       => tenantModel::count(),
-        'totalLandlords'     => landlordModel::count(),
-        'totalCollection'    => paymentVerifiedModel::where('status', 'success')->sum('amount'),
-    ];
+    {
+        $totals = [
+            // Ihap sa tanan registered tenants.
+            'totalTenants' => tenantModel::count(),
 
-    return response()->json($totals);
-}
+            // Ihap sa tanan registered landlords.
+            'totalLandlords' => landlordModel::count(),
 
+            // Kwentahon ang total amount sa successful payments.
+            'totalCollection' => paymentVerifiedModel::where('status', 'success')->sum('amount'),
+        ];
 
-   public function getSubscribersTotal()
-{
-    // Total successful subscriptions
-    $totalSubscribers = DB::table('landlordVerifiedPayment')
-        ->where('status', 'success')
-        ->count();
+        // Ibalik ang dashboard totals isip JSON response.
+        return response()->json($totals);
+    }
 
-    // Total collection from successful payments
-    $totalCollection = DB::table('landlordVerifiedPayment')
-        ->where('status', 'success')
-        ->sum('amount');
+    // Kuhaon ang total successful subscriptions ug total collection.
+    public function getSubscribersTotal()
+    {
+        // Ihap sa tanan successful subscription payments.
+        $totalSubscribers = DB::table('landlordVerifiedPayment')
+            ->where('status', 'success')
+            ->count();
 
-    return response()->json([
-        'totalSubscribers' => $totalSubscribers,
-        'totalCollection'  => $totalCollection,
-    ]);
-}
+        // Kwentahon ang total collection gikan sa successful payments.
+        $totalCollection = DB::table('landlordVerifiedPayment')
+            ->where('status', 'success')
+            ->sum('amount');
 
+        // Ibalik ang subscription totals isip JSON response.
+        return response()->json([
+            'totalSubscribers' => $totalSubscribers,
+            'totalCollection' => $totalCollection,
+        ]);
+    }
+
+    // Mag-generate og PDF report sa successful subscriptions kada bulan.
     public function generateSubscriptionReport()
-{
-    // Query subscriptions per month
-    $subscriptions = DB::table('landlordVerifiedPayment')
-        ->selectRaw("DATE_FORMAT(created_at, '%M %Y') as month, COUNT(*) as count, SUM(amount) as total_amount")
-        ->where('status', 'success')
-        ->groupByRaw("DATE_FORMAT(created_at, '%M %Y')")
-        ->orderByRaw("MIN(created_at)")
-        ->get();
+    {
+        // Kuhaon ang monthly subscription count ug total payment amount.
+        $subscriptions = DB::table('landlordVerifiedPayment')
+            ->selectRaw("DATE_FORMAT(created_at, '%M %Y') as month, COUNT(*) as count, SUM(amount) as total_amount")
+            ->where('status', 'success')
+            ->groupByRaw("DATE_FORMAT(created_at, '%M %Y')")
+            ->orderByRaw("MIN(created_at)")
+            ->get();
 
-    // Calculate grand total income
-    $totalIncome = $subscriptions->sum('total_amount');
+        // Kwentahon ang grand total income gikan sa tanang monthly records.
+        $totalIncome = $subscriptions->sum('total_amount');
 
-    $logoPath = public_path('images/Logo/logo.png');
+        // Kuhaon ang file path sa logo nga gamiton sa PDF report.
+        $logoPath = public_path('images/Logo/logo.png');
 
-    // Pass to view
-    $pdf = Pdf::loadView('admin.auth.reports.subscription-report', compact('subscriptions','logoPath','totalIncome'));
+        // I-load ang subscription report view ug ipasa ang required data.
+        $pdf = Pdf::loadView(
+            'admin.auth.reports.subscription-report',
+            compact('subscriptions', 'logoPath', 'totalIncome')
+        );
 
-    // Stream PDF
-    return $pdf->stream("subscription_report.pdf");
-}
-
+        // I-display ang generated PDF sa browser.
+        return $pdf->stream("subscription_report.pdf");
+    }
 }

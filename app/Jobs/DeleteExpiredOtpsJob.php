@@ -9,27 +9,29 @@ use Illuminate\Queue\SerializesModels;
 use App\Models\otpModel;
 use Illuminate\Foundation\Bus\Dispatchable;
 
-
 class DeleteExpiredOtpsJob implements ShouldQueue
 {
+    // Gamita ang Queueable trait aron mahimong queueable ang job.
     use Queueable;
 
-    /**
-     * Create a new job instance.
-     */
+    // Constructor nga gamiton sa paghimo og bag-ong job instance.
     public function __construct()
     {
         //
     }
 
-    /**
-     * Execute the job.
-     */
+    // I-execute ang job aron tangtangon ang mga expired OTP records.
     public function handle(): void
     {
-         $now = now();
+        // Kuhaon ang current date ug time.
+        $now = now();
+
+        // Pangitaon ug permanenteng tangtangon ang mga OTP nga:
+        // - Dili null ang expiration date.
+        // - Expired na o parehas na sa current date ug time.
         $expiredCount = otpModel::whereNotNull('otpExpiresAt')
             ->where('otpExpiresAt', '<=', $now)
             ->forceDelete();
     }
 }
+

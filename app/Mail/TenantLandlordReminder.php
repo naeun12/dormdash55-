@@ -11,15 +11,15 @@ use SendGrid\Mail\Mail;
 
 class TenantLandlordReminder extends Mailable
 {
+    // Gamita ang Queueable ug SerializesModels para sa email processing.
     use Queueable, SerializesModels;
 
+    // Variables nga mag-store sa pangalan, mensahe, ug klase sa recipient.
     public $recipientName;
     public $messageBody;
     public $type; // 'tenant' or 'landlord'
 
-    /**
-     * Create a new message instance.
-     */
+    // I-initialize ang recipient details ug ang type sa reminder.
     public function __construct($recipientName, $messageBody, $type = 'tenant')
     {
         $this->recipientName = $recipientName;
@@ -27,9 +27,7 @@ class TenantLandlordReminder extends Mailable
         $this->type = $type;
     }
 
-    /**
-     * Get the message envelope.
-     */
+    // I-set ang email subject depende kung tenant ba o landlord ang recipient.
     public function envelope(): Envelope
     {
         return new Envelope(
@@ -37,9 +35,7 @@ class TenantLandlordReminder extends Mailable
         );
     }
 
-    /**
-     * Get the message content definition.
-     */
+    // I-specify ang Blade view nga gamiton isip sulod sa reminder email.
     public function content(): Content
     {
         return new Content(
@@ -47,11 +43,10 @@ class TenantLandlordReminder extends Mailable
         );
     }
 
-    /**
-     * Get the attachments for the message.
-     */
+    // I-return ang mga attachment nga i-apil sa email.
     public function attachments(): array
     {
         return [];
     }
 }
+

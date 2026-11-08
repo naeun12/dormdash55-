@@ -12,20 +12,19 @@ use SendGrid\Mail\Mail;
 
 class tenantEmailOtp extends Mailable
 {
+    // Gamita ang Queueable ug SerializesModels para sa email processing.
     use Queueable, SerializesModels;
 
-    /**
-     * Create a new message instance.
-     */
+    // Variable nga mag-store sa OTP code nga ipadala sa email.
     public $otp;
+
+    // I-initialize ang OTP nga ipasa gikan sa controller.
     public function __construct($otp)
     {
         $this->otp = $otp;
     }
 
-    /**
-     * Get the message envelope.
-     */
+    // I-set ang subject o title sa OTP email.
     public function envelope(): Envelope
     {
         return new Envelope(
@@ -33,9 +32,7 @@ class tenantEmailOtp extends Mailable
         );
     }
 
-    /**
-     * Get the message content definition.
-     */
+    // I-specify ang Blade view nga gamiton isip sulod sa OTP email.
     public function content(): Content
     {
         return new Content(
@@ -43,16 +40,12 @@ class tenantEmailOtp extends Mailable
         );
     }
 
-    /**
-     * Get the attachments for the message.
-     *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
-     */
+    // I-return ang mga attachment nga i-apil sa email.
     public function attachments(): array
     {
         return [
-             
+
         ];
     }
-   
 }
+
